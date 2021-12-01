@@ -174,7 +174,7 @@ export function SignUp() {
 	const SignUpButton = () => (
 		<button
 			type='submit'
-			className='btn btn-primary btn-block'
+			className='button default mt-4'
 			ref={signUpButton}
 			disabled={errors ? false : true}
 			onClick={handleSubmit(onSignUpClick)}>

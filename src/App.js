@@ -44,12 +44,12 @@ const NavBar = () => (
 			</Link>
 			<div className='d-flex justify-content-end' id='navbarTogglerDemo02'>
 				<div className='navbar-nav ml-auto'>
-					<button className='btn btn-outline-secondary me-3'>
+					<button className='btn'>
 						<Link className='nav-link' to={'/login'}>
 							Log In
 						</Link>
 					</button>
-					<button className='btn btn-outline-primary'>
+					<button className='button info'>
 						<Link className='nav-link' to={'/signup'}>
 							Sign up
 						</Link>

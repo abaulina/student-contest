@@ -120,7 +120,7 @@ export function Login() {
 	);
 
 	const KeepLoggedInCheckbox = () => (
-		<div className='form-check mb-3'>
+		<div className='form-check mt-3'>
 			<input
 				className='form-check-input'
 				type='checkbox'
@@ -138,7 +138,7 @@ export function Login() {
 		<button
 			// ref={submitButton}
 			type='submit'
-			className='btn btn-primary btn-block'
+			className='button default mt-4'
 			onClick={handleSubmit(doLogin)}>
 			Submit
 		</button>
