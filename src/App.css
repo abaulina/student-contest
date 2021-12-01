@@ -1,6 +1,6 @@
 .App {
 	text-align: center;
-	font-size: 0.9vw;
+	font-size: calc(1rem+0.9vw);
 }
 
 .button {
