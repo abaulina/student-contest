@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import hidePwdImg from '../../assets/hide-password.svg';
 import showPwdImg from '../../assets/show-password.svg';
 import './login.component.css';
@@ -13,7 +13,7 @@ export function Login() {
 	const [password, setPassword] = useState();
 	const [isPasswordShown, setPasswordShown] = useState(false);
 	const [isCapsWarningShown, setCapsWarningShown] = useState(false);
-	const submitButton = useRef();
+	//const submitButton = useRef();
 	const {
 		register,
 		handleSubmit,
@@ -44,9 +44,9 @@ export function Login() {
 		setEmail(e.target.value);
 	};
 
-	const onEnterPress = (e) => {
-		if (e.charCode === 13) submitButton.current.click();
-	};
+	// const onEnterPress = (e) => {
+	// 	if (e.charCode === 13) submitButton.current.click();
+	// };
 
 	const doLogin = () => {};
 
@@ -79,7 +79,7 @@ export function Login() {
 				className={`form-control ${errors.email ? 'is-invalid' : ''} required`}
 				id='floatingInput'
 				placeholder='name@example.com'
-				onKeyPress={onEnterPress}
+				//onKeyPress={onEnterPress}
 				onChange={onEmailInput}
 				autoFocus
 			/>
@@ -101,7 +101,7 @@ export function Login() {
 				id='floatingPassword'
 				placeholder='Password'
 				onKeyUp={capsLockWarning}
-				onKeyPress={onEnterPress}
+				//onKeyPress={onEnterPress}
 				onBlur={onPasswordInputBlur}
 				onChange={onPasswordInput}
 			/>
@@ -136,7 +136,7 @@ export function Login() {
 
 	const SubmitButton = () => (
 		<button
-			ref={submitButton}
+			// ref={submitButton}
 			type='submit'
 			className='btn btn-primary btn-block'
 			onClick={handleSubmit(doLogin)}>

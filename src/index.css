@@ -1,38 +1,16 @@
-body {
-	margin: 0;
-	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-		'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-		sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-code {
-	font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-		monospace;
-}
-
 @import url('https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600,700,800');
 
-* {
-	box-sizing: border-box;
-}
 body {
 	background: #1c8ef9 !important;
 	min-height: 100vh;
 	display: flex;
-	font-weight: 400;
+	font-weight: 200;
 	font-family: 'Fira Sans', sans-serif;
 }
 
-h1,
-h2,
-h4,
-h5,
-h6,
 label,
 span {
-	font-weight: 500;
+	font-weight: 200;
 	font-family: 'Fira Sans', sans-serif;
 }
 
@@ -53,6 +31,10 @@ html,
 .navbar-light {
 	background-color: #ffffff;
 	width: 100%;
+	height: 8em;
+	padding: 0px;
+	box-sizing: border-box;
+	box-shadow: rgb(0 0 0 / 11%) 0 1px;
 }
 
 .auth-wrapper {
@@ -63,16 +45,15 @@ html,
 }
 
 .auth-inner {
-	width: 450px;
+	width: 25%;
 	margin: auto;
 	background: #ffffff;
 	box-shadow: 0px 14px 80px rgba(34, 35, 58, 0.2);
 	padding: 40px 55px 45px 55px;
 	border-radius: 15px;
-	transition: all 0.3s;
 }
 
-.auth-wrapper .form-control:focus {
+.auth-wrapper {
 	border-color: #167bff;
 	box-shadow: none;
 }
@@ -84,19 +65,19 @@ html,
 	padding-bottom: 20px;
 }
 
-.custom-control-label {
-	font-weight: 400;
-}
-
 .forgot-password,
 .forgot-password a {
 	text-align: right;
-	font-size: 13px;
-	padding-top: 10px;
+	font-size: 90%;
+	padding-top: 0.7rem;
 	color: #7f7d7d;
 	margin: 0;
 }
 
 .forgot-password a {
 	color: #167bff;
+}
+
+img {
+	height: 40px;
 }
