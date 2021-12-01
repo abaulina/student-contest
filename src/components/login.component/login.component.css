@@ -1,0 +1,21 @@
+.form-control {
+	margin-right: 1rem;
+}
+
+div.d-flex {
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+div.form-floating {
+	margin-bottom: 1rem;
+}
+
+#floatingPassword {
+	flex: '0 0 calc(100% - 40px)';
+}
+
+img {
+	flex: '0 0 24px';
+}
