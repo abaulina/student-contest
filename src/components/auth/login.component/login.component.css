@@ -1,0 +1,40 @@
+.form-control {
+	margin-right: 1rem;
+}
+
+div.log-in {
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+div.form-floating {
+	margin-bottom: 1rem;
+}
+
+#floatingPassword {
+	flex: '0 0 calc(100% - 1.5rem)';
+}
+
+img.log-in {
+	flex-grow: 0;
+	flex-shrink: 0;
+	flex-basis: 1.5rem;
+	max-width: 50%;
+}
+
+.auth-inner {
+	width: 25%;
+	min-width: 375px;
+	max-width: 550px;
+	height: fit-content;
+	max-height: 700px;
+	margin-bottom: auto;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 10rem;
+	background: #ffffff;
+	box-shadow: 0px 14px 80px rgba(34, 35, 58, 0.2);
+	padding: 40px 55px 45px 55px;
+	border-radius: 15px;
+}

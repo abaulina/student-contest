@@ -4,8 +4,9 @@ import { Toaster } from 'react-hot-toast';
 import NotFound from './components/errorPages/notFound';
 import BadRequest from './components/errorPages/badRequest';
 import logo from './assets/logo192.png';
-import { Login } from './components/login.component/login.component';
-import { SignUp } from './components/signup.component/signup.component';
+import { Login } from './components/auth/login.component/login.component';
+import { Main } from './components/main.component';
+import { SignUp } from './components/auth/signup.component/signup.component';
 import './App.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 
@@ -16,15 +17,13 @@ function App() {
 			<div className='App container-fluid'>
 				<NavBar />
 				<div className='auth-wrapper'>
-					<div className='auth-inner'>
-						<Routes>
-							<Route exact path='/' element={<Login />} />
-							<Route path='/login' element={<Login />} />
-							<Route path='/signup' element={<SignUp />} />
-							<Route path='/error' element={<BadRequest />} />
-							<Route path='*' element={<NotFound />} />
-						</Routes>
-					</div>
+					<Routes>
+						<Route exact path='/' element={<Main />} />
+						<Route path='/login' element={<Login />} />
+						<Route path='/signup' element={<SignUp />} />
+						<Route path='/error' element={<BadRequest />} />
+						<Route path='*' element={<NotFound />} />
+					</Routes>
 				</div>
 			</div>
 		</Router>
@@ -34,7 +33,7 @@ function App() {
 const NavBar = () => (
 	<nav className='navbar navbar-expand-lg navbar-light'>
 		<div className='container'>
-			<Link className='navbar-brand' to={'/login'}>
+			<Link className='navbar-brand' to={'/'}>
 				<img
 					src={logo}
 					alt=''
