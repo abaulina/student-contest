@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import hidePwdImg from '../../../assets/hide-password.svg';
-import Modal from './signupSuccess.modal';
+import SignUpSuccessModal from './signupSuccess.modal';
 import showPwdImg from '../../../assets/show-password.svg';
 import './signup.component.css';
 
@@ -117,6 +117,10 @@ export function SignUp() {
 
 	return (
 		<div className='auth-inner'>
+			<SignUpSuccessModal
+				isShowModal={isShowSuccessModal}
+				hideModal={hideModal}
+			/>
 			<h3>Create account</h3>
 			<div>
 				<div className='form-floating'>
@@ -200,7 +204,6 @@ export function SignUp() {
 				</div>
 				<SignUpButton />
 				<ForgotPasswordLink />
-				<Modal isShowModal={isShowSuccessModal} hideModal={hideModal} />
 			</div>
 		</div>
 	);

@@ -2,21 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 
-Modal.propTypes = {
+SignUpSuccessModal.propTypes = {
 	isShowModal: PropTypes.bool.isRequired,
 	hideModal: PropTypes.func.isRequired
 };
 
-function Modal(props) {
+function SignUpSuccessModal(props) {
 	return (
 		props.isShowModal && (
 			<div
 				className='modal'
-				id='addEditModal'
-				data-backdrop='static'
-				data-keyboard='false'
 				tabIndex='-1'
-				role='document'>
+				aria-labelledby='signupSuccessModalHeader'>
 				<div className='modal-dialog modal-dialog-centered'>
 					<div className='modal-content border border-info'>
 						<ModalHeader hideModal={props.hideModal} />
@@ -36,13 +33,14 @@ function Modal(props) {
 const ModalHeader = (hideModal) => {
 	return (
 		<div className='modal-header'>
-			<h5 className='modal-title'>Thanks for signing up</h5>
+			<h5 className='modal-title' id='signupSuccessModalHeader'>
+				Thanks for signing up
+			</h5>
 			<button
 				type='button'
-				className='close'
+				className='btn-close'
 				onClick={hideModal}
-				aria-label='Close'
-				data-bs-dismiss='modal'>
+				aria-label='Close'>
 				<span aria-hidden='true'>&times;</span>
 			</button>
 		</div>
@@ -52,11 +50,7 @@ const ModalHeader = (hideModal) => {
 const ModalFooter = (hideModal) => {
 	return (
 		<div className='modal-footer'>
-			<button
-				type='button'
-				className='btn btn-secondary'
-				data-bs-dismiss='modal'
-				onClick={hideModal}>
+			<button type='button' className='btn btn-secondary' onClick={hideModal}>
 				Close
 			</button>
 			<button className='button default'>
@@ -68,4 +62,4 @@ const ModalFooter = (hideModal) => {
 	);
 };
 
-export default Modal;
+export default SignUpSuccessModal;
