@@ -1,22 +1,27 @@
 import React from 'react';
-//import Cookies from 'js-cookie';
-//import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import laptop from '../assets/laptop.png';
-import { Login } from '../auth/login/login';
+import Login from '../auth/login/login';
 import './mainPage.css';
 
-export function Main() {
-	// const isUserLoggedIn = () => (
-	//  	if(!Cookies.get('userEmail'))
-	// 		return <Navigate to="/home" replace state={state} />
-	//   	else
-	//   		const userData = JSON.parse(Cookies.get('userEmail'));
-	// );
+function Main({ isUserLoggedIn, setUserLoggedIn }) {
+	const location = useLocation();
+
+	if (isUserLoggedIn)
+		return <Navigate to='/user' replace state={{ from: location }} />;
 
 	return (
 		<div className='d-flex main'>
 			<img className='main' src={laptop} />
-			<Login />
+			<Login setUserLoggedIn={setUserLoggedIn} />
 		</div>
 	);
 }
+
+Main.propTypes = {
+	isUserLoggedIn: PropTypes.bool.isRequired,
+	setUserLoggedIn: PropTypes.func.isRequired
+};
+
+export default Main;

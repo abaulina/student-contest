@@ -1,29 +1,17 @@
-p.not-found {
+p.user-account {
 	font-size: 150%;
 	text-align: center;
 	color: #000000;
 	margin-bottom: 1.5em;
 }
 
-div.not-found {
+div.user-account {
 	width: 50%;
 	min-width: 375px;
 	margin-top: 5rem;
 	background: #ffffff;
+	justify-content: center;
 	box-shadow: 0px 14px 80px rgba(34, 35, 58, 0.2);
 	padding: 40px 55px 45px 55px;
 	border-radius: 15px;
-	flex-direction: column;
-	align-items: center;
-}
-
-a.not-found {
-	padding: 0.3rem 0.6rem;
-	color: white;
-	font-size: 1.3rem;
-	text-decoration: none;
-}
-
-a.not-found:hover {
-	color: white;
 }

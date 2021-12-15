@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef, createRef } from 'react';
-import cn from 'classnames';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import hidePwdImg from '../../assets/hide-password.svg';
+import EmailInput from '../emailInput';
+import NameInput from './nameInput';
+import PasswordInput from '../passwordInput';
 import SignUpSuccess from './signupSuccess';
-import showPwdImg from '../../assets/show-password.svg';
 import './signup.css';
 
 const ForgotPasswordLink = () => (
@@ -14,7 +14,7 @@ const ForgotPasswordLink = () => (
 	</p>
 );
 
-export function SignUp() {
+function SignUp() {
 	const localStorage = window.localStorage;
 	const [email, setEmail] = useState();
 	const [password, setPassword] = useState();
@@ -31,7 +31,7 @@ export function SignUp() {
 	});
 	const signUpButton = useRef();
 	const lastNameInput = useRef();
-	const emailInput = createRef();
+	const firstNameInput = createRef();
 	const passwordInput = useRef();
 
 	const togglePassword = () => {
@@ -190,13 +190,13 @@ export function SignUp() {
 	const onEnterPress = (e) => {
 		if (e.charCode === 13) {
 			switch (e.target.id) {
+				case 'floatingEmail':
+					firstNameInput.current.focus();
+					break;
 				case 'floatingFirstName':
 					lastNameInput.current.focus();
 					break;
 				case 'floatingLastName':
-					emailInput.current.focus();
-					break;
-				case 'floatingEmail':
 					passwordInput.current.focus();
 					break;
 				case 'floatingPassword':
@@ -218,96 +218,48 @@ export function SignUp() {
 			Sign Up
 		</button>
 	);
-
-	const passwordInputClassName = cn({
-		'form-control': true,
-		'is-invalid': !!errors.password
-	});
-	const emailInputClassName = cn({
-		'form-control': true,
-		'is-invalid': !!errors.email
-	});
-	const firstNameInputClassName = cn({
-		'form-control': true,
-		'is-invalid': !!errors.firstName
-	});
-	const lastNameInputClassName = cn({
-		'form-control': true,
-		'is-invalid': !!errors.lastName
-	});
-
 	return isSignUpSuccess ? (
 		<SignUpSuccess />
 	) : (
 		<div className='auth-inner'>
 			<h3>Create account</h3>
 			<div>
-				<div className='form-floating'>
-					<input
-						type='text'
-						className={firstNameInputClassName}
-						id='floatingFirstName'
-						onChange={onFirstNameInput}
-						onKeyPress={onEnterPress}
-						placeholder='First name'
-						autoFocus
-					/>
-					<label htmlFor='floatingFirstName'>First Name</label>
-					<div className='invalid-feedback'>{errors.firstName}</div>
-				</div>
-				<div className='form-floating'>
-					<input
-						ref={lastNameInput}
-						type='text'
-						className={lastNameInputClassName}
-						onChange={onLastNameInput}
-						onKeyPress={onEnterPress}
-						id='floatingLastName'
-						placeholder='Last name'
-					/>
-					<label htmlFor='floatingLastName'>Last name</label>
-					<div className='invalid-feedback'>{errors.lastName}</div>
-				</div>
-				<div className='form-floating'>
-					<input
-						type='email'
-						ref={emailInput}
-						className={emailInputClassName}
-						onChange={onEmailInput}
-						onKeyPress={onEnterPress}
-						id='floatingEmail'
-						placeholder='name@example.com'
-					/>
-					<label htmlFor='floatingInput'>Email address</label>
-					<div className='invalid-feedback'>{errors.email}</div>
-				</div>
-				<div className='form-floating d-flex sign-up'>
-					<input
-						ref={passwordInput}
-						type={isPasswordShown ? 'text' : 'password'}
-						className={passwordInputClassName}
-						id='floatingPassword'
-						placeholder='Password'
-						onKeyUp={capsLockWarning}
-						onKeyPress={onEnterPress}
-						onChange={onPasswordInput}
-					/>
-					<label htmlFor='floatingPassword'>Password</label>
-					<img
-						htmlFor='floatingPassword'
-						className='log-in'
-						alt=''
-						height='24'
-						width='24'
-						title={isPasswordShown ? 'Hide password' : 'Show password'}
-						src={isPasswordShown ? hidePwdImg : showPwdImg}
-						onClick={togglePassword}
-					/>
-					<div className='invalid-feedback'>{errors.password}</div>
-				</div>
+				<EmailInput
+					email={email}
+					error={errors.email}
+					onEnterPress={onEnterPress}
+					onInput={onEmailInput}
+					hasFeedback
+				/>
+				<NameInput
+					name='First Name'
+					error={errors.firstName}
+					onEnterPress={onEnterPress}
+					onInput={onLastNameInput}
+					ref={firstNameInput}
+				/>
+				<NameInput
+					name='Last Name'
+					error={errors.lastName}
+					onEnterPress={onEnterPress}
+					onInput={onFirstNameInput}
+					ref={lastNameInput}
+				/>
+				<PasswordInput
+					error={errors.password}
+					isPasswordShown={isPasswordShown}
+					capsLockWarning={capsLockWarning}
+					onEnterPress={onEnterPress}
+					onPasswordInput={onPasswordInput}
+					togglePassword={togglePassword}
+					isSignUp
+					ref={passwordInput}
+				/>
 				<SignUpButton />
 				<ForgotPasswordLink />
 			</div>
 		</div>
 	);
 }
+
+export default SignUp;

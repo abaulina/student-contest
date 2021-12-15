@@ -1,12 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import cn from 'classnames';
 import Cookies from 'js-cookie';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import toast from 'react-hot-toast';
-import { EmailInput } from '../emailInput';
-import hidePwdImg from '../../assets/hide-password.svg';
-import showPwdImg from '../../assets/show-password.svg';
+import EmailInput from '../emailInput';
+import PasswordInput from '../passwordInput';
 import './login.css';
 
 const ForgotPasswordLink = () => (
@@ -21,7 +19,7 @@ const NoAccountLink = () => (
 	</p>
 );
 
-export function Login(props) {
+function Login(props) {
 	const localStorage = window.localStorage;
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -117,11 +115,6 @@ export function Login(props) {
 		</button>
 	);
 
-	const inputClassName = cn({
-		'form-control': true,
-		'is-invalid': !!error
-	});
-
 	return (
 		<div className='auth-inner'>
 			<h3>Welcome Back</h3>
@@ -130,31 +123,18 @@ export function Login(props) {
 				error={error}
 				onEnterPress={onEnterPress}
 				onInput={onEmailInput}
+				hasFeedback={false}
 			/>
-			<div className='form-floating d-flex log-in'>
-				<input
-					type={isPasswordShown ? 'text' : 'password'}
-					className={inputClassName}
-					id='floatingPassword'
-					placeholder='Password'
-					onKeyUp={capsLockWarning}
-					onKeyPress={onEnterPress}
-					onChange={onPasswordInput}
-					ref={passwordInput}
-				/>
-				<label htmlFor='floatingPassword'>Password</label>
-				<img
-					className='log-in'
-					htmlFor='floatingPassword'
-					alt='show or hide password'
-					height='24'
-					width='24'
-					title={isPasswordShown ? 'Hide password' : 'Show password'}
-					src={isPasswordShown ? hidePwdImg : showPwdImg}
-					onClick={togglePassword}
-				/>
-				<div className='invalid-feedback'>{error}</div>
-			</div>
+			<PasswordInput
+				error={error}
+				isPasswordShown={isPasswordShown}
+				capsLockWarning={capsLockWarning}
+				onEnterPress={onEnterPress}
+				onPasswordInput={onPasswordInput}
+				togglePassword={togglePassword}
+				isSignUp={false}
+				ref={passwordInput}
+			/>
 			<SubmitButton />
 			<ForgotPasswordLink />
 			<NoAccountLink />
@@ -165,3 +145,5 @@ export function Login(props) {
 Login.propTypes = {
 	setUserLoggedIn: PropTypes.func.isRequired
 };
+
+export default Login;

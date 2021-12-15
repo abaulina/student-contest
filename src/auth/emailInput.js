@@ -2,7 +2,7 @@ import React from 'react';
 import cn from 'classnames';
 import PropTypes from 'prop-types';
 
-export const EmailInput = ({ email, error, onEnterPress, onInput }) => {
+const EmailInput = ({ email, error, onEnterPress, onInput, hasFeedback }) => {
 	const inputClassName = cn({
 		'form-control': true,
 		'is-invalid': !!error
@@ -21,14 +21,17 @@ export const EmailInput = ({ email, error, onEnterPress, onInput }) => {
 				autoFocus
 			/>
 			<label htmlFor='floatingEmail'>Email address</label>
+			{hasFeedback && <div className='invalid-feedback'>{error}</div>}
 		</div>
 	);
 };
 
 EmailInput.propTypes = {
-	email: PropTypes.string.isRequired,
-	inputRef: PropTypes.any,
+	email: PropTypes.string,
 	error: PropTypes.any,
 	onEnterPress: PropTypes.func.isRequired,
-	onInput: PropTypes.func.isRequired
+	onInput: PropTypes.func.isRequired,
+	hasFeedback: PropTypes.bool.isRequired
 };
+
+export default EmailInput;

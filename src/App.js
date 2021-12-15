@@ -4,11 +4,13 @@ import cn from 'classnames';
 import Cookies from 'js-cookie';
 import PropTypes from 'prop-types';
 import { Toaster } from 'react-hot-toast';
+import Login from './auth/login/login';
+import Main from './main/mainPage';
 import NotFound from './error404/notFound';
+//import PrivateRoute from './PrivateRoute';
+import SignUp from './auth/signup/signup';
+import UserAccount from './user/userAccount';
 import logo from './assets/logo192.png';
-import { Login } from './auth/login/login';
-import { Main } from './main/mainPage';
-import { SignUp } from './auth/signup/signup';
 import './App.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 
@@ -21,13 +23,29 @@ function App() {
 		<Router>
 			<Toaster position='top-right' />
 			<div className='App container-fluid'>
-				<NavBar {...{ isUserLoggedIn, setUserLoggedIn }} />
+				<NavBar
+					isUserLoggedIn={isUserLoggedIn}
+					setUserLoggedIn={setUserLoggedIn}
+				/>
 				<div className='auth-wrapper'>
 					<Routes>
-						<Route exact path='/' element={<Main />} />
-						<Route path='/login' element={<Login {...setUserLoggedIn} />} />
+						<Route
+							exact
+							path='/'
+							element={
+								<Main
+									isUserLoggedIn={isUserLoggedIn}
+									setUserLoggedIn={setUserLoggedIn}
+								/>
+							}
+						/>
+						<Route
+							path='/login'
+							element={<Login setUserLoggedIn={setUserLoggedIn} />}
+						/>
 						<Route path='/signup' element={<SignUp />} />
 						<Route path='*' element={<NotFound />} />
+						<Route path='/user' element={<UserAccount />} />
 					</Routes>
 				</div>
 			</div>
@@ -60,7 +78,7 @@ const NavBar = (props) => {
 		invisible: props.isUserLoggedIn
 	});
 
-	const onLogout = () => {
+	const LogOut = () => {
 		props.setUserLoggedIn(false);
 		Cookies.remove('userEmail');
 	};
@@ -77,7 +95,7 @@ const NavBar = (props) => {
 							</Link>
 						</button>
 						{props.isUserLoggedIn ? (
-							<button className='button info' onClick={onLogout}>
+							<button className='button info' onClick={LogOut}>
 								Log out
 							</button>
 						) : (

@@ -4,7 +4,7 @@ import './notFound.css';
 
 const NotFound = () => {
 	return (
-		<div className='d-flex align-items-center flex-column not-found'>
+		<div className='d-flex not-found'>
 			<p className='not-found'>
 				Ooops! The page you're looking for has been removed, renamed or
 				unavailable
