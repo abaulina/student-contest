@@ -31,3 +31,10 @@ a.sign-up {
 a.sign-up:hover {
 	color: white;
 }
+
+h3.sign-up {
+	font-weight: 500;
+	margin-bottom: 1rem !important;
+	text-shadow: fuchsia 0.5px 0.5px;
+	color: #00253b;
+}
