@@ -12,7 +12,7 @@ const PrivateRoute = ({ children }) => {
 };
 
 PrivateRoute.PropTypes = {
-	children: PropTypes.node,
+	children: PropTypes.element,
 	isUserLoggedIn: PropTypes.bool
 };
 

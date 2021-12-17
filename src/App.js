@@ -44,8 +44,8 @@ function App() {
 							element={<Login setUserLoggedIn={setUserLoggedIn} />}
 						/>
 						<Route path='/signup' element={<SignUp />} />
-						<Route path='*' element={<NotFound />} />
 						<Route path='/user' element={<UserAccount />} />
+						<Route path='*' element={<NotFound />} />
 					</Routes>
 				</div>
 			</div>
@@ -72,32 +72,38 @@ const NavBarSignUpButton = () => (
 	</button>
 );
 
+const NavBarLogoutButton = ({ setUserLoggedIn }) => {
+	const LogOut = () => {
+		setUserLoggedIn(false);
+		Cookies.remove('userEmail');
+	};
+
+	return (
+		<button className='button info' onClick={LogOut}>
+			Log out
+		</button>
+	);
+};
+
 const NavBar = (props) => {
 	const loginButtonClassName = cn({
 		btn: true,
 		invisible: props.isUserLoggedIn
 	});
 
-	const LogOut = () => {
-		props.setUserLoggedIn(false);
-		Cookies.remove('userEmail');
-	};
-
 	return (
 		<nav className='navbar navbar-expand-lg navbar-light'>
 			<div className='container'>
 				<NavBarLogo />
 				<div className='d-flex justify-content-end'>
-					<div className='navbar-nav ml-auto'>
+					<div className='navbar-nav'>
 						<button className={loginButtonClassName}>
 							<Link className='nav-link' to={'/login'}>
 								Log In
 							</Link>
 						</button>
 						{props.isUserLoggedIn ? (
-							<button className='button info' onClick={LogOut}>
-								Log out
-							</button>
+							<NavBarLogoutButton setUserLoggedIn={props.setUserLoggedIn} />
 						) : (
 							<NavBarSignUpButton />
 						)}
@@ -110,6 +116,10 @@ const NavBar = (props) => {
 
 NavBar.propTypes = {
 	isUserLoggedIn: PropTypes.bool.isRequired,
+	setUserLoggedIn: PropTypes.func.isRequired
+};
+
+NavBarLogoutButton.propTypes = {
 	setUserLoggedIn: PropTypes.func.isRequired
 };
 
