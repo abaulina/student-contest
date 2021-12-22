@@ -1,55 +1,54 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import cn from 'classnames';
 import Cookies from 'js-cookie';
-import PropTypes from 'prop-types';
 import { Toaster } from 'react-hot-toast';
 import Login from './auth/login/login';
 import Main from './main/mainPage';
 import NotFound from './error404/notFound';
-//import PrivateRoute from './PrivateRoute';
+import PrivateRoute from './privateRoute';
 import SignUp from './auth/signup/signup';
+import PrivatePage from './privatePage';
+import useAuth, { AuthProvider } from './useAuth';
 import UserAccount from './user/userAccount';
 import logo from './assets/logo192.png';
 import './App.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
 
 function App() {
-	const [isUserLoggedIn, setUserLoggedIn] = useState(
-		Cookies.get('userEmail') ? true : false
-	);
-
 	return (
-		<Router>
-			<Toaster position='top-right' />
-			<div className='App container-fluid'>
-				<NavBar
-					isUserLoggedIn={isUserLoggedIn}
-					setUserLoggedIn={setUserLoggedIn}
-				/>
-				<div className='auth-wrapper'>
-					<Routes>
-						<Route
-							exact
-							path='/'
-							element={
-								<Main
-									isUserLoggedIn={isUserLoggedIn}
-									setUserLoggedIn={setUserLoggedIn}
-								/>
-							}
-						/>
-						<Route
-							path='/login'
-							element={<Login setUserLoggedIn={setUserLoggedIn} />}
-						/>
-						<Route path='/signup' element={<SignUp />} />
-						<Route path='/user' element={<UserAccount />} />
-						<Route path='*' element={<NotFound />} />
-					</Routes>
+		<AuthProvider>
+			<Router>
+				<Toaster position='top-right' />
+				<div className='App container-fluid'>
+					<NavBar />
+					<div className='auth-wrapper'>
+						<Routes>
+							<Route exact path='/' element={<Main />} />
+							<Route path='/login' element={<Login />} />
+							<Route path='/signup' element={<SignUp />} />
+							<Route
+								path='/user'
+								element={
+									<PrivateRoute>
+										<UserAccount />
+									</PrivateRoute>
+								}
+							/>
+							<Route
+								path='/test'
+								element={
+									<PrivateRoute>
+										<PrivatePage />
+									</PrivateRoute>
+								}
+							/>
+							<Route path='*' element={<NotFound />} />
+						</Routes>
+					</div>
 				</div>
-			</div>
-		</Router>
+			</Router>
+		</AuthProvider>
 	);
 }
 
@@ -72,23 +71,25 @@ const NavBarSignUpButton = () => (
 	</button>
 );
 
-const NavBarLogoutButton = ({ setUserLoggedIn }) => {
-	const LogOut = () => {
-		setUserLoggedIn(false);
+const NavBarLogoutButton = () => {
+	const auth = useAuth();
+	const handleLogOut = () => {
+		auth.logout();
 		Cookies.remove('userEmail');
 	};
 
 	return (
-		<button className='button info' onClick={LogOut}>
+		<button className='button info' onClick={handleLogOut}>
 			Log out
 		</button>
 	);
 };
 
-const NavBar = (props) => {
+const NavBar = () => {
+	const isAuthenticated = useAuth().isAuthenticated;
 	const loginButtonClassName = cn({
 		btn: true,
-		invisible: props.isUserLoggedIn
+		invisible: isAuthenticated
 	});
 
 	return (
@@ -102,25 +103,12 @@ const NavBar = (props) => {
 								Log In
 							</Link>
 						</button>
-						{props.isUserLoggedIn ? (
-							<NavBarLogoutButton setUserLoggedIn={props.setUserLoggedIn} />
-						) : (
-							<NavBarSignUpButton />
-						)}
+						{isAuthenticated ? <NavBarLogoutButton /> : <NavBarSignUpButton />}
 					</div>
 				</div>
 			</div>
 		</nav>
 	);
-};
-
-NavBar.propTypes = {
-	isUserLoggedIn: PropTypes.bool.isRequired,
-	setUserLoggedIn: PropTypes.func.isRequired
-};
-
-NavBarLogoutButton.propTypes = {
-	setUserLoggedIn: PropTypes.func.isRequired
 };
 
 export default App;

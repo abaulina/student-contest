@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Cookies from 'js-cookie';
 import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import toast from 'react-hot-toast';
+import { useNavigate, useLocation } from 'react-router-dom';
 import EmailInput from '../emailInput';
 import PasswordInput from '../passwordInput';
+import useAuth from '../../useAuth';
 import './login.css';
 
 const ForgotPasswordLink = () => (
@@ -19,7 +19,7 @@ const NoAccountLink = () => (
 	</p>
 );
 
-function Login(props) {
+function Login() {
 	const localStorage = window.localStorage;
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -28,6 +28,9 @@ function Login(props) {
 	const [error, setError] = useState('');
 	const submitButton = useRef();
 	const passwordInput = useRef();
+	const auth = useAuth();
+	const navigate = useNavigate();
+	const location = useLocation();
 
 	const togglePassword = () => {
 		setPasswordShown((isPasswordShown) => !isPasswordShown);
@@ -73,15 +76,17 @@ function Login(props) {
 
 	const validateInput = () => {
 		if (validateEmail() && validatePassword()) {
-			doLogin();
+			return doLogin();
 		}
 	};
 
 	const doLogin = () => {
 		setCapsWarningShown((isCapsWarningShown) => !isCapsWarningShown);
 		setError(null);
-		Cookies.set('userEmail', email, { expires: 30 });
-		props.setUserLoggedIn(true);
+		auth.login(email);
+		if (!location.state || (location.state && !location.state.path))
+			navigate('/user');
+		else navigate(location.state.path);
 	};
 
 	const validateEmail = () => {
@@ -141,9 +146,5 @@ function Login(props) {
 		</div>
 	);
 }
-
-Login.propTypes = {
-	setUserLoggedIn: PropTypes.func.isRequired
-};
 
 export default Login;

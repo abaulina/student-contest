@@ -1,19 +1,20 @@
-//import React from 'react';
-//import { Navigate, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Navigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import useAuth from './useAuth';
 
 const PrivateRoute = ({ children }) => {
-	//const location = useLocation();
+	const location = useLocation();
+	const isAuthenticated = useAuth().isAuthenticated;
 
-	// if (!isUserLoggedIn)
-	// 	return <Navigate to='/login' state={{ from: location }} />;
+	if (!isAuthenticated)
+		return <Navigate to='/login' replace state={{ path: location.pathname }} />;
 
 	return children;
 };
 
-PrivateRoute.PropTypes = {
-	children: PropTypes.element,
-	isUserLoggedIn: PropTypes.bool
+PrivateRoute.propTypes = {
+	children: PropTypes.element
 };
 
 export default PrivateRoute;
