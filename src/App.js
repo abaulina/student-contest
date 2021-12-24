@@ -79,7 +79,10 @@ const NavBarLogoutButton = () => {
 	};
 
 	return (
-		<button className='button info' onClick={handleLogOut}>
+		<button
+			className='button info'
+			onClick={handleLogOut}
+			data-testid='logoutButton'>
 			Log out
 		</button>
 	);
@@ -98,7 +101,7 @@ const NavBar = () => {
 				<NavBarLogo />
 				<div className='d-flex justify-content-end'>
 					<div className='navbar-nav'>
-						<button className={loginButtonClassName}>
+						<button className={loginButtonClassName} data-testid='loginButton'>
 							<Link className='nav-link' to={'/login'}>
 								Log In
 							</Link>
