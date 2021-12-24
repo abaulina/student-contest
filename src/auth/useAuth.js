@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import Cookies from 'js-cookie';
 import PropTypes from 'prop-types';
 
@@ -18,18 +18,6 @@ function useProvideAuth() {
 		setAuthenticated(false);
 		Cookies.remove('userEmail');
 	};
-
-	useEffect(() => {
-		const unsubscribe = () => {
-			if (isAuthenticated) {
-				setAuthenticated(true);
-			} else {
-				setAuthenticated(false);
-			}
-		};
-		// Cleanup subscription on unmount
-		return () => unsubscribe();
-	}, []);
 
 	return {
 		isAuthenticated,

@@ -9,7 +9,7 @@ import NotFound from './error404/notFound';
 import PrivateRoute from './privateRoute';
 import SignUp from './auth/signup/signup';
 import PrivatePage from './privatePage';
-import useAuth, { AuthProvider } from './useAuth';
+import useAuth, { AuthProvider } from './auth/useAuth';
 import UserAccount from './user/userAccount';
 import logo from './assets/logo192.png';
 import './App.css';

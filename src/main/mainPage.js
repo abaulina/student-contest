@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import laptop from '../assets/laptop.png';
 import Login from '../auth/login/login';
-import useAuth from '../useAuth';
+import useAuth from '../auth/useAuth';
 import './mainPage.css';
 
 function Main() {

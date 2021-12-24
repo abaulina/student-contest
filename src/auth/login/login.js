@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import EmailInput from '../emailInput';
 import PasswordInput from '../passwordInput';
-import useAuth from '../../useAuth';
+import useAuth from '../useAuth';
 import './login.css';
 
 const ForgotPasswordLink = () => (
