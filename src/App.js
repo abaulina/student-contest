@@ -64,7 +64,7 @@ const NavBarLogo = () => (
 );
 
 const NavBarSignUpButton = () => (
-	<button className='button info'>
+	<button className='button info' data-testid='signupButton'>
 		<Link className='nav-link' to={'/signup'}>
 			Sign up
 		</Link>
