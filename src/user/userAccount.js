@@ -15,7 +15,7 @@ function UserAccount() {
 
 	return (
 		<div className='d-flex user-account'>
-			<p className='not-found'>
+			<p className='not-found' data-testid='userGreeting'>
 				Nice to see you again, {name} {lastName}
 			</p>
 		</div>

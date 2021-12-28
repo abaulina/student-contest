@@ -4,7 +4,7 @@ import { unmountComponentAtNode } from 'react-dom';
 import { render, fireEvent, act } from '@testing-library/react';
 import App from '../App';
 
-describe('App and isAuthenticated', () => {
+describe('App when isAuthenticated', () => {
 	let container = null;
 	let cookieRemoveSpy = null;
 	let cookieGetSpy = null;
@@ -14,11 +14,13 @@ describe('App and isAuthenticated', () => {
 		container = document.createElement('div');
 		document.body.appendChild(container);
 		cookieRemoveSpy = jest.spyOn(Cookies, 'remove').mockReturnValue('removed');
-		cookieGetSpy = jest.spyOn(Cookies, 'get').mockReturnValue('acsd@list.ru');
+		cookieGetSpy = jest
+			.spyOn(Cookies, 'get')
+			.mockReturnValue('test@example.com');
 		localStorageGetSpy = jest
 			.spyOn(Storage.prototype, 'getItem')
 			.mockReturnValue(
-				'[{"email":"acsd@list.ru","password":"12345678","firstName":"Test","lastName":"User"}]'
+				'[{"email":"test@example.com","password":"12345678","firstName":"Test","lastName":"User"}]'
 			);
 	});
 
@@ -116,7 +118,7 @@ describe('App and isAuthenticated', () => {
 	});
 });
 
-describe('App and !isAuthenticated', () => {
+describe('App when !isAuthenticated', () => {
 	let container = null;
 
 	beforeEach(() => {
