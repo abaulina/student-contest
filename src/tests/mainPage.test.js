@@ -38,10 +38,10 @@ describe('Main when isAuthenticated', () => {
 
 	it('redirects to user', () => {
 		act(() => {
-			render(<Main />, container);
+			(<Main />), container;
 		});
 
-		expect(document.location.pathname).toMatch('/user');
+		expect(history.location.pathname).toMatch('/user');
 	});
 });
 
@@ -65,11 +65,14 @@ describe('Main when !isAuthenticated', () => {
 		});
 	});
 
-	// it('displays image and login form', () => {
-	// 	act(() => {
-	// 		render(<Main />, container);
-	// 	});
+	it('displays image and login form', () => {
+		act(() => {
+			render(<Main />, container);
+		});
 
-	// 	expect(document.location.pathname).toMatch('/user');
-	// });
+		const image = document.querySelector('[data-testid=img]');
+		const form = document.querySelector('[data-testid=loginForm]');
+		expect(image).toBeInTheDocument();
+		expect(form).toBeInTheDocument();
+	});
 });

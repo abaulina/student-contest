@@ -6,11 +6,10 @@ import { Toaster } from 'react-hot-toast';
 import Login from './auth/login/login';
 import Main from './main/mainPage';
 import NotFound from './error404/notFound';
-import PrivateRoute from './privateRoute';
 import SignUp from './auth/signup/signup';
 import PrivatePage from './privatePage';
 import useAuth, { AuthProvider } from './auth/useAuth';
-import UserAccount from './user/userAccount';
+import { WrapperUserAccount } from './user/userAccount';
 import logo from './assets/logo192.png';
 import './App.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
@@ -27,22 +26,8 @@ function App() {
 							<Route exact path='/' element={<Main />} />
 							<Route path='/login' element={<Login />} />
 							<Route path='/signup' element={<SignUp />} />
-							<Route
-								path='/user'
-								element={
-									<PrivateRoute>
-										<UserAccount />
-									</PrivateRoute>
-								}
-							/>
-							<Route
-								path='/test'
-								element={
-									<PrivateRoute>
-										<PrivatePage />
-									</PrivateRoute>
-								}
-							/>
+							<Route path='/user' element={<WrapperUserAccount />} />
+							<Route path='/test' element={<PrivatePage />} />
 							<Route path='*' element={<NotFound />} />
 						</Routes>
 					</div>
@@ -65,7 +50,7 @@ const NavBarLogo = () => (
 
 const NavBarSignUpButton = () => (
 	<button className='button info' data-testid='signupButton'>
-		<Link className='nav-link' to={'/signup'}>
+		<Link className='nav-link' to={'/signup'} data-testid='signupButtonLink'>
 			Sign up
 		</Link>
 	</button>

@@ -7,7 +7,7 @@ import PasswordInput from '../passwordInput';
 import SignUpSuccess from './signupSuccess';
 import './signup.css';
 
-const ForgotPasswordLink = () => (
+const AlreadyRegisteredLink = () => (
 	<p className='forgot-password text-right'>
 		Already registered?
 		<Link to='/login'> Sign in</Link>
@@ -256,7 +256,7 @@ function SignUp() {
 					ref={passwordInput}
 				/>
 				<SignUpButton />
-				<ForgotPasswordLink />
+				<AlreadyRegisteredLink />
 			</div>
 		</div>
 	);

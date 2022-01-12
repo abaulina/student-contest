@@ -1,10 +1,13 @@
 import React from 'react';
+import PrivateRoute from './privateRoute';
 
 function PrivatePage() {
 	return (
-		<div className='d-flex user-account'>
-			<p className='not-found'>Some info</p>
-		</div>
+		<PrivateRoute>
+			<div className='d-flex user-account'>
+				<p className='not-found'>Some info</p>
+			</div>
+		</PrivateRoute>
 	);
 }
 

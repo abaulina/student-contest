@@ -4,7 +4,9 @@ import './signup.css';
 
 const SignUpSuccess = () => {
 	return (
-		<div className='d-flex align-items-center flex-column not-found'>
+		<div
+			className='d-flex align-items-center flex-column not-found'
+			data-testid='successMsg'>
 			<h3 className='sign-up'>Thanks for signing up </h3>
 			<p className='not-found'>
 				Your account has been successfully created. Now you can log in

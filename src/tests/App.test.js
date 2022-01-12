@@ -1,5 +1,6 @@
 import React from 'react';
 import Cookies from 'js-cookie';
+import '@testing-library/jest-dom';
 import { unmountComponentAtNode } from 'react-dom';
 import { render, fireEvent, act } from '@testing-library/react';
 import App from '../App';
@@ -72,18 +73,6 @@ describe('App when isAuthenticated', () => {
 		expect(cookieRemoveSpy.mock.results[0].value).toBe('removed');
 	});
 
-	// it('isAuthenticated should become false on LogOut button click', () => {
-	// 	render(<App />, container);
-
-	// 	act(() => {
-	// 		fireEvent.click(document.querySelector('[data-testid=logoutButton]'));
-	// 	});
-
-	// 	expect(cookieGetSpy).toHaveBeenCalled();
-	// 	expect(cookieRemoveSpy).toHaveBeenCalled();
-	// 	expect(cookieRemoveSpy.mock.results[0].value).toBe('removed');
-	// });
-
 	it('LogOut button is visible when isAuthenticated', () => {
 		let logOutButton = null;
 
@@ -103,7 +92,7 @@ describe('App when isAuthenticated', () => {
 			loginButton = document.querySelector('[data-testid=loginButton]');
 		});
 
-		expect(loginButton).not.toBeVisible();
+		expect(loginButton).toHaveClass('invisible');
 	});
 
 	it('SignUp button is not rendered when isAuthenticated', () => {
@@ -167,15 +156,6 @@ describe('App when !isAuthenticated', () => {
 		});
 
 		expect(document.location.pathname).toMatch('/login');
-	});
-
-	it('redirects to signup page on SignUp button click', () => {
-		act(() => {
-			render(<App />, container);
-			fireEvent.click(document.querySelector('[data-testid=signupButton]'));
-		});
-
-		expect(document.location.pathname).toMatch('/signup');
 	});
 
 	it('SignUp button is visible when !isAuthenticated', () => {

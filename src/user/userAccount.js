@@ -1,5 +1,7 @@
 import React from 'react';
+import '@testing-library/jest-dom';
 import Cookies from 'js-cookie';
+import PrivateRoute from './../privateRoute';
 import './userAccount.css';
 
 const getLoggedInUserInfo = () => {
@@ -19,6 +21,14 @@ function UserAccount() {
 				Nice to see you again, {name} {lastName}
 			</p>
 		</div>
+	);
+}
+
+export function WrapperUserAccount() {
+	return (
+		<PrivateRoute>
+			<UserAccount />
+		</PrivateRoute>
 	);
 }
 

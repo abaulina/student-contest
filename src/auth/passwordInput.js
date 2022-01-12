@@ -54,12 +54,12 @@ PasswordInput.displayName = 'PasswordInput';
 
 PasswordInput.propTypes = {
 	error: PropTypes.any,
-	onEnterPress: PropTypes.func.isRequired,
-	isPasswordShown: PropTypes.bool.isRequired,
-	capsLockWarning: PropTypes.func.isRequired,
-	onPasswordInput: PropTypes.func.isRequired,
-	togglePassword: PropTypes.func.isRequired,
-	isSignUp: PropTypes.bool.isRequired
+	onEnterPress: PropTypes.func,
+	isPasswordShown: PropTypes.bool,
+	capsLockWarning: PropTypes.func,
+	onPasswordInput: PropTypes.func,
+	togglePassword: PropTypes.func,
+	isSignUp: PropTypes.bool
 };
 
 const ShowHidePasswordImage = ({ isPasswordShown, togglePassword }) => {
@@ -67,6 +67,7 @@ const ShowHidePasswordImage = ({ isPasswordShown, togglePassword }) => {
 		<img
 			htmlFor='floatingPassword'
 			className='log-in'
+			data-testid='pswdImg'
 			alt='show or hide password'
 			height='24'
 			width='24'
@@ -78,8 +79,8 @@ const ShowHidePasswordImage = ({ isPasswordShown, togglePassword }) => {
 };
 
 ShowHidePasswordImage.propTypes = {
-	isPasswordShown: PropTypes.bool.isRequired,
-	togglePassword: PropTypes.func.isRequired
+	isPasswordShown: PropTypes.bool,
+	togglePassword: PropTypes.func
 };
 
 export default PasswordInput;

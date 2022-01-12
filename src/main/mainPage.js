@@ -14,7 +14,7 @@ function Main() {
 
 	return (
 		<div className='d-flex main'>
-			<img className='main' src={laptop} />
+			<img className='main' data-testid='img' src={laptop} />
 			<Login />
 		</div>
 	);

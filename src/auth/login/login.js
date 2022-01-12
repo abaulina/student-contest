@@ -121,7 +121,7 @@ function Login() {
 	);
 
 	return (
-		<div className='auth-inner'>
+		<div className='auth-inner' data-testid='loginForm'>
 			<h3>Welcome Back</h3>
 			<EmailInput
 				email={email}
