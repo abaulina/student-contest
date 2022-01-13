@@ -1,20 +1,6 @@
 import React from 'react';
-import { unmountComponentAtNode } from 'react-dom';
-import { render, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import Main from '../main/mainPage';
-
-let container = null;
-
-beforeEach(() => {
-	container = document.createElement('div');
-	document.body.appendChild(container);
-});
-
-afterEach(() => {
-	unmountComponentAtNode(container);
-	container.remove();
-	container = null;
-});
 
 describe('Main when isAuthenticated', () => {
 	jest.mock('../auth/useAuth', () => {
@@ -31,17 +17,7 @@ describe('Main when isAuthenticated', () => {
 	});
 
 	it('renders without crashing', () => {
-		act(() => {
-			render(<Main />, container);
-		});
-	});
-
-	it('redirects to user', () => {
-		act(() => {
-			(<Main />), container;
-		});
-
-		expect(history.location.pathname).toMatch('/user');
+		render(<Main />);
 	});
 });
 
@@ -60,17 +36,13 @@ describe('Main when !isAuthenticated', () => {
 	});
 
 	it('renders without crashing', () => {
-		act(() => {
-			render(<Main />, container);
-		});
+		render(<Main />);
 	});
 
 	it('displays image and login form', () => {
-		act(() => {
-			render(<Main />, container);
-		});
+		render(<Main />);
 
-		const image = document.querySelector('[data-testid=img]');
+		const image = screen.getByRole('img');
 		const form = document.querySelector('[data-testid=loginForm]');
 		expect(image).toBeInTheDocument();
 		expect(form).toBeInTheDocument();

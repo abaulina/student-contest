@@ -49,8 +49,8 @@ const NavBarLogo = () => (
 );
 
 const NavBarSignUpButton = () => (
-	<button className='button info' data-testid='signupButton'>
-		<Link className='nav-link' to={'/signup'} data-testid='signupButtonLink'>
+	<button className='button info'>
+		<Link className='nav-link' to={'/signup'}>
 			Sign up
 		</Link>
 	</button>
@@ -64,10 +64,7 @@ const NavBarLogoutButton = () => {
 	};
 
 	return (
-		<button
-			className='button info'
-			onClick={handleLogOut}
-			data-testid='logoutButton'>
+		<button className='button info' onClick={handleLogOut}>
 			Log out
 		</button>
 	);
@@ -86,7 +83,7 @@ const NavBar = () => {
 				<NavBarLogo />
 				<div className='d-flex justify-content-end'>
 					<div className='navbar-nav'>
-						<button className={loginButtonClassName} data-testid='loginButton'>
+						<button className={loginButtonClassName}>
 							<Link className='nav-link' to={'/login'}>
 								Log In
 							</Link>

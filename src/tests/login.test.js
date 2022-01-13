@@ -1,18 +1,16 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import { unmountComponentAtNode } from 'react-dom';
+import userEvent from '@testing-library/user-event';
 import { render, act, fireEvent, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import Login from './../auth/login/login';
+import { invalidLoginEntries, validLoginEntry } from './inputData';
 
-let container = null;
 let localStorageGetSpy = null;
 let history = null;
 
 beforeEach(() => {
-	container = document.createElement('div');
-	document.body.appendChild(container);
 	localStorageGetSpy = jest
 		.spyOn(Storage.prototype, 'getItem')
 		.mockReturnValue(
@@ -22,9 +20,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-	unmountComponentAtNode(container);
-	container.remove();
-	container = null;
 	localStorageGetSpy.mockRestore();
 	history = null;
 });
@@ -33,18 +28,11 @@ it('renders without crashing', () => {
 	act(() => {
 		render(
 			<MemoryRouter history={history}>
-				<Login />, container
+				<Login />
 			</MemoryRouter>
 		);
 	});
 });
-
-const invalidLoginEntries = [
-	{ email: 'abc.test.com', password: '12345678' },
-	{ email: 'example@abc', password: 'pass$12D' },
-	{ email: 'jane@yahoo.com', password: 'passW34E' },
-	{ email: 'john_done@testing.com', password: 'Pa$$w0rd' }
-];
 
 describe('Login input test', () => {
 	test.each(invalidLoginEntries)(
@@ -53,17 +41,15 @@ describe('Login input test', () => {
 			act(() => {
 				render(
 					<MemoryRouter history={history}>
-						<Login />, container
+						<Login />
 					</MemoryRouter>
 				);
 			});
 
-			const emailInput = screen.queryByPlaceholderText(/example.com/i);
-			fireEvent.change(emailInput, { target: { value: loginEntry.email } });
-			const passwordInput = screen.queryByPlaceholderText(/password/i);
-			fireEvent.change(passwordInput, {
-				target: { value: loginEntry.password }
-			});
+			const emailInput = screen.getByPlaceholderText(/example.com/i);
+			userEvent.type(emailInput, loginEntry.email);
+			const passwordInput = screen.getByPlaceholderText(/password/i);
+			userEvent.type(passwordInput, loginEntry.password);
 
 			const submitButton = screen.getByText(/submit/i);
 			expect(submitButton).toBeEnabled();
@@ -77,25 +63,22 @@ describe('Login input test', () => {
 	);
 
 	it('valid input success', async () => {
-		const validEntry = { email: 'test@example.com', password: '12345678' };
 		act(() => {
 			render(
 				<MemoryRouter history={history}>
-					<Login />, container
+					<Login />
 				</MemoryRouter>
 			);
 		});
 
-		const emailInput = screen.queryByPlaceholderText(/example.com/i);
-		fireEvent.change(emailInput, { target: { value: validEntry.email } });
+		const emailInput = screen.getByPlaceholderText(/example.com/i);
+		userEvent.type(emailInput, validLoginEntry.email);
 
 		const submitButton = screen.getByText(/submit/i);
 		expect(submitButton).not.toBeEnabled();
 
-		const passwordInput = screen.queryByPlaceholderText(/password/i);
-		fireEvent.change(passwordInput, {
-			target: { value: validEntry.password }
-		});
+		const passwordInput = screen.getByPlaceholderText(/password/i);
+		userEvent.type(passwordInput, validLoginEntry.password);
 
 		expect(await screen.findByText(/submit/i)).toBeEnabled();
 

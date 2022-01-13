@@ -1,19 +1,15 @@
 import React from 'react';
 import Cookies from 'js-cookie';
 import '@testing-library/jest-dom';
-import { unmountComponentAtNode } from 'react-dom';
-import { render, fireEvent, act } from '@testing-library/react';
+import { render, fireEvent, screen } from '@testing-library/react';
 import App from '../App';
 
 describe('App when isAuthenticated', () => {
-	let container = null;
 	let cookieRemoveSpy = null;
 	let cookieGetSpy = null;
 	let localStorageGetSpy = null;
 
 	beforeEach(() => {
-		container = document.createElement('div');
-		document.body.appendChild(container);
 		cookieRemoveSpy = jest.spyOn(Cookies, 'remove').mockReturnValue('removed');
 		cookieGetSpy = jest
 			.spyOn(Cookies, 'get')
@@ -26,9 +22,6 @@ describe('App when isAuthenticated', () => {
 	});
 
 	afterEach(() => {
-		unmountComponentAtNode(container);
-		container.remove();
-		container = null;
 		cookieGetSpy.mockRestore();
 		cookieRemoveSpy.mockRestore();
 		localStorageGetSpy.mockRestore();
@@ -48,25 +41,12 @@ describe('App when isAuthenticated', () => {
 	});
 
 	it('renders without crashing', () => {
-		render(<App />, container);
-
-		expect(document.location.pathname).toMatch('/');
-	});
-
-	it('navigates home when you click the logo', () => {
-		act(() => {
-			render(<App />, container);
-			fireEvent.click(document.getElementsByClassName('navbar-brand')[0]);
-		});
-
-		expect(document.location.pathname).toMatch('/');
+		render(<App />);
 	});
 
 	it('should remove cookie on LogOut button click', () => {
-		act(() => {
-			render(<App />, container);
-			fireEvent.click(document.querySelector('[data-testid=logoutButton]'));
-		});
+		render(<App />);
+		fireEvent.click(screen.getByText(/log out/i));
 
 		expect(cookieGetSpy).toHaveBeenCalled();
 		expect(cookieRemoveSpy).toHaveBeenCalled();
@@ -74,53 +54,25 @@ describe('App when isAuthenticated', () => {
 	});
 
 	it('LogOut button is visible when isAuthenticated', () => {
-		let logOutButton = null;
+		render(<App />);
 
-		act(() => {
-			render(<App />, container);
-			logOutButton = document.querySelector('[data-testid=logoutButton]');
-		});
-
-		expect(logOutButton).toBeVisible();
+		expect(screen.getByText(/log out/i)).toBeVisible();
 	});
 
 	it('LogIn button is invisible when isAuthenticated', () => {
-		let loginButton = null;
+		render(<App />);
 
-		act(() => {
-			render(<App />, container);
-			loginButton = document.querySelector('[data-testid=loginButton]');
-		});
-
-		expect(loginButton).toHaveClass('invisible');
+		expect(document.getElementsByClassName('btn invisible')).not.toBeNull();
 	});
 
 	it('SignUp button is not rendered when isAuthenticated', () => {
-		let signUpButton = null;
+		render(<App />);
 
-		act(() => {
-			render(<App />, container);
-			signUpButton = document.querySelector('[data-testid=signupButton]');
-		});
-
-		expect(signUpButton).toBeNull();
+		expect(screen.queryByText(/sign up/i)).toBeNull();
 	});
 });
 
 describe('App when !isAuthenticated', () => {
-	let container = null;
-
-	beforeEach(() => {
-		container = document.createElement('div');
-		document.body.appendChild(container);
-	});
-
-	afterEach(() => {
-		unmountComponentAtNode(container);
-		container.remove();
-		container = null;
-	});
-
 	jest.mock('../auth/useAuth', () => {
 		const originalModule = jest.requireActual('../auth/useAuth');
 		return {
@@ -135,59 +87,24 @@ describe('App when !isAuthenticated', () => {
 	});
 
 	it('renders without crashing', () => {
-		render(<App />, container);
-
-		expect(document.location.pathname).toMatch('/');
-	});
-
-	it('navigates home when you click the logo', () => {
-		act(() => {
-			render(<App />, container);
-			fireEvent.click(document.getElementsByClassName('navbar-brand')[0]);
-		});
-
-		expect(document.location.pathname).toMatch('/');
-	});
-
-	it('redirects to login page on LogIn button click', () => {
-		act(() => {
-			render(<App />, container);
-			fireEvent.click(document.querySelector('[data-testid=loginButton]'));
-		});
-
-		expect(document.location.pathname).toMatch('/login');
+		render(<App />);
 	});
 
 	it('SignUp button is visible when !isAuthenticated', () => {
-		let signUpButton = null;
+		render(<App />);
 
-		act(() => {
-			render(<App />, container);
-			signUpButton = document.querySelector('[data-testid=signupButton]');
-		});
-
-		expect(signUpButton).toBeVisible();
+		expect(screen.getByText(/sign up/i)).toBeVisible();
 	});
 
 	it('LogIn button is visible when !isAuthenticated', () => {
-		let loginButton = null;
+		render(<App />);
 
-		act(() => {
-			render(<App />, container);
-			loginButton = document.querySelector('[data-testid=loginButton]');
-		});
-
-		expect(loginButton).toBeVisible();
+		expect(screen.getByText(/log in/i)).toBeVisible();
 	});
 
 	it('LogOut button is not rendered when !isAuthenticated', () => {
-		let logOutButton = null;
+		render(<App />);
 
-		act(() => {
-			render(<App />, container);
-			logOutButton = document.querySelector('[data-testid=logoutButton]');
-		});
-
-		expect(logOutButton).toBeNull();
+		expect(screen.queryByText(/log out/i)).toBeNull();
 	});
 });
