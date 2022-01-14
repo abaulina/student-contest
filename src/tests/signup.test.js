@@ -1,5 +1,4 @@
 import React from 'react';
-import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import { render, fireEvent, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
@@ -32,7 +31,7 @@ it('renders without crashing', () => {
 });
 
 describe('SignUp input test', () => {
-	test.each(invalidSignupEntries)(
+	it.each(invalidSignupEntries)(
 		'check invalid combination for validity',
 		async (signUpEntry) => {
 			render(

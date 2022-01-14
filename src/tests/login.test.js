@@ -1,14 +1,11 @@
 import React from 'react';
-import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
-import { render, act, fireEvent, screen } from '@testing-library/react';
+import { render, fireEvent, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { createMemoryHistory } from 'history';
 import Login from './../auth/login/login';
 import { invalidLoginEntries, validLoginEntry } from './inputData';
 
 let localStorageGetSpy = null;
-let history = null;
 
 beforeEach(() => {
 	localStorageGetSpy = jest
@@ -16,35 +13,29 @@ beforeEach(() => {
 		.mockReturnValue(
 			'[{"email":"test@example.com","password":"12345678","firstName":"Test","lastName":"User"}]'
 		);
-	history = createMemoryHistory();
 });
 
 afterEach(() => {
 	localStorageGetSpy.mockRestore();
-	history = null;
 });
 
 it('renders without crashing', () => {
-	act(() => {
-		render(
-			<MemoryRouter history={history}>
-				<Login />
-			</MemoryRouter>
-		);
-	});
+	render(
+		<MemoryRouter>
+			<Login />
+		</MemoryRouter>
+	);
 });
 
 describe('Login input test', () => {
-	test.each(invalidLoginEntries)(
+	it.each(invalidLoginEntries)(
 		'check combination for validity',
 		async (loginEntry) => {
-			act(() => {
-				render(
-					<MemoryRouter history={history}>
-						<Login />
-					</MemoryRouter>
-				);
-			});
+			render(
+				<MemoryRouter>
+					<Login />
+				</MemoryRouter>
+			);
 
 			const emailInput = screen.getByPlaceholderText(/example.com/i);
 			userEvent.type(emailInput, loginEntry.email);
@@ -63,13 +54,11 @@ describe('Login input test', () => {
 	);
 
 	it('valid input success', async () => {
-		act(() => {
-			render(
-				<MemoryRouter history={history}>
-					<Login />
-				</MemoryRouter>
-			);
-		});
+		render(
+			<MemoryRouter>
+				<Login />
+			</MemoryRouter>
+		);
 
 		const emailInput = screen.getByPlaceholderText(/example.com/i);
 		userEvent.type(emailInput, validLoginEntry.email);
