@@ -106,4 +106,31 @@ describe('App when !isAuthenticated', () => {
 
 		expect(screen.queryByText(/log out/i)).toBeNull();
 	});
+
+	it('redirects to signup page on no account click', async () => {
+		render(<App />);
+		fireEvent.click(screen.getByText(/no account/i));
+
+		expect(
+			await screen.findByPlaceholderText(/last name/i)
+		).toBeInTheDocument();
+	});
+
+	it('redirects to login page on LogIn button click', () => {
+		render(<App />);
+		fireEvent.click(screen.getByText(/log in/i));
+
+		expect(
+			document.querySelector('[data-testid=loginForm]')
+		).toBeInTheDocument();
+	});
+
+	it('redirects to signup page on SignUp button click', async () => {
+		render(<App />);
+		fireEvent.click(screen.getByText(/sign up/i));
+
+		expect(
+			await screen.findByPlaceholderText(/last name/i)
+		).toBeInTheDocument();
+	});
 });
