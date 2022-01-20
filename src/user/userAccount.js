@@ -1,5 +1,4 @@
 import React from 'react';
-import '@testing-library/jest-dom';
 import Cookies from 'js-cookie';
 import PrivateRoute from './../privateRoute';
 import './userAccount.css';
@@ -24,7 +23,7 @@ function UserAccount() {
 	);
 }
 
-export function WrapperUserAccount() {
+export function WrappedUserAccount() {
 	return (
 		<PrivateRoute>
 			<UserAccount />

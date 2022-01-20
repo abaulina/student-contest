@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { render, fireEvent, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Login from './../auth/login/login';
-import { invalidLoginEntries, validLoginEntry } from './inputData';
+import { invalidLoginEntries, validLoginEntry } from './data/inputData';
 
 let localStorageGetSpy = null;
 

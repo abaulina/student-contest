@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import EmailInput from '../emailInput';
 import NameInput from './nameInput';
 import PasswordInput from '../passwordInput';
+import ProtectedRoute from '../../protectedRoute';
 import SignUpSuccess from './signupSuccess';
 import './signup.css';
 
@@ -259,6 +260,14 @@ function SignUp() {
 				<AlreadyRegisteredLink />
 			</div>
 		</div>
+	);
+}
+
+export function WrappedSignup() {
+	return (
+		<ProtectedRoute>
+			<SignUp />
+		</ProtectedRoute>
 	);
 }
 

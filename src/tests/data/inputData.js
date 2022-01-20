@@ -97,7 +97,7 @@ export const invalidSignupEntries = [
 	}
 ];
 
-export const validSignupEntry = {
+export const validUser = {
 	email: 'test@example.com',
 	password: '12345678',
 	firstName: 'Test',

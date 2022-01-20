@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { useNavigate, useLocation } from 'react-router-dom';
 import EmailInput from '../emailInput';
 import PasswordInput from '../passwordInput';
+import ProtectedRoute from '../../protectedRoute';
 import useAuth from '../useAuth';
 import './login.css';
 
@@ -144,6 +145,14 @@ function Login() {
 			<ForgotPasswordLink />
 			<NoAccountLink />
 		</div>
+	);
+}
+
+export function WrappedLogin() {
+	return (
+		<ProtectedRoute>
+			<Login />
+		</ProtectedRoute>
 	);
 }
 

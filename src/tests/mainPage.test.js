@@ -3,17 +3,23 @@ import { render, screen } from '@testing-library/react';
 import Main from '../main/mainPage';
 
 describe('Main when isAuthenticated', () => {
-	jest.mock('../auth/useAuth', () => {
-		const originalModule = jest.requireActual('../auth/useAuth');
-		return {
-			__esModule: true,
-			...originalModule,
-			default: () => ({
-				isAuthenticated: true,
-				login: jest.fn,
-				logout: jest.fn
-			})
-		};
+	beforeEach(() => {
+		jest.mock('../auth/useAuth', () => {
+			const originalModule = jest.requireActual('../auth/useAuth');
+			return {
+				__esModule: true,
+				...originalModule,
+				default: () => ({
+					isAuthenticated: true,
+					login: jest.fn,
+					logout: jest.fn
+				})
+			};
+		});
+	});
+
+	afterEach(() => {
+		jest.resetModules();
 	});
 
 	it('renders without crashing', () => {
@@ -22,17 +28,23 @@ describe('Main when isAuthenticated', () => {
 });
 
 describe('Main when !isAuthenticated', () => {
-	jest.mock('../auth/useAuth', () => {
-		const originalModule = jest.requireActual('../auth/useAuth');
-		return {
-			__esModule: true,
-			...originalModule,
-			default: () => ({
-				isAuthenticated: false,
-				login: jest.fn,
-				logout: jest.fn
-			})
-		};
+	beforeEach(() => {
+		jest.mock('../auth/useAuth', () => {
+			const originalModule = jest.requireActual('../auth/useAuth');
+			return {
+				__esModule: true,
+				...originalModule,
+				default: () => ({
+					isAuthenticated: false,
+					login: jest.fn,
+					logout: jest.fn
+				})
+			};
+		});
+	});
+
+	afterEach(() => {
+		jest.resetModules();
 	});
 
 	it('renders without crashing', () => {

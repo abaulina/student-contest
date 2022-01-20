@@ -3,13 +3,13 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import cn from 'classnames';
 import Cookies from 'js-cookie';
 import { Toaster } from 'react-hot-toast';
-import Login from './auth/login/login';
+import { WrappedLogin } from './auth/login/login';
 import Main from './main/mainPage';
 import NotFound from './error404/notFound';
-import SignUp from './auth/signup/signup';
+import { WrappedSignup } from './auth/signup/signup';
 import PrivatePage from './privatePage';
 import useAuth, { AuthProvider } from './auth/useAuth';
-import { WrapperUserAccount } from './user/userAccount';
+import { WrappedUserAccount } from './user/userAccount';
 import logo from './assets/logo192.png';
 import './App.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
@@ -24,9 +24,9 @@ function App() {
 					<div className='auth-wrapper'>
 						<Routes>
 							<Route exact path='/' element={<Main />} />
-							<Route path='/login' element={<Login />} />
-							<Route path='/signup' element={<SignUp />} />
-							<Route path='/user' element={<WrapperUserAccount />} />
+							<Route path='/login' element={<WrappedLogin />} />
+							<Route path='/signup' element={<WrappedSignup />} />
+							<Route path='/user' element={<WrappedUserAccount />} />
 							<Route path='/test' element={<PrivatePage />} />
 							<Route path='*' element={<NotFound />} />
 						</Routes>
