@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css?family=Fira+Sans:400,500,600,700,800');
+
+body {
+	background: #00253b !important;
+	min-height: 100vh;
+	display: flex;
+	font-weight: 200;
+	font-family: 'Fira Sans', sans-serif;
+}
+
+label,
+span {
+	font-weight: 200;
+	font-family: 'Fira Sans', sans-serif;
+}
+
+h3 {
+	font-weight: 100;
+}
+
+body,
+html,
+.App,
+#root,
+.auth-wrapper {
+	width: 100%;
+	min-width: 375px;
+	height: 100%;
+	padding: 0px;
+}
+
+.navbar-light {
+	background-color: #ffffff;
+	width: 100%;
+	min-width: 375px;
+	color: black;
+	height: 8em;
+	padding: 0px;
+	box-sizing: border-box;
+	box-shadow: rgb(0 0 0 / 11%) 0 1px;
+}
+
+.auth-wrapper {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	text-align: left;
+	border-color: #00253b;
+	box-shadow: none;
+}
+
+.auth-wrapper h3 {
+	text-align: center;
+	margin: 0;
+	line-height: 1;
+	padding-bottom: 2rem;
+	margin-bottom: 2rem;
+}
+
+.forgot-password,
+.no-account,
+.forgot-password a {
+	text-align: right;
+	font-size: 95%;
+	padding-top: 0.7rem;
+	color: #7f7d7d;
+	margin: 0;
+}
+
+.forgot-password a,
+.no-account a {
+	color: #779be7;
+}
+
+img {
+	height: 5%;
+	max-width: 100%;
+}

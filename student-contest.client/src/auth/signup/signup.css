@@ -1,0 +1,40 @@
+.form-control {
+	margin-right: 1rem;
+}
+
+div.sign-up {
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+div.form-floating {
+	margin-bottom: 1rem;
+}
+
+#floatingPassword {
+	flex: '0 0 calc(100% - 2.5rem)';
+}
+
+img {
+	flex: '0 0 1.5rem';
+	max-width: 100%;
+}
+
+a.sign-up {
+	padding: 0.3rem 0.6rem;
+	color: white;
+	font-size: 1.3rem;
+	text-decoration: none;
+}
+
+a.sign-up:hover {
+	color: white;
+}
+
+h3.sign-up {
+	font-weight: 500;
+	margin-bottom: 1rem !important;
+	text-shadow: fuchsia 0.5px 0.5px;
+	color: #00253b;
+}

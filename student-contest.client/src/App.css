@@ -1,0 +1,37 @@
+.App {
+	text-align: center;
+	font-size: calc(1rem+0.9vw);
+}
+
+.button {
+	border-radius: 10px;
+	border: 0.1rem solid #00253b;
+	background-color: white;
+	color: black;
+	padding: 0.3rem 0.6rem;
+	cursor: pointer;
+	margin-right: 1rem;
+}
+
+.default {
+	border-color: #779be7;
+	color: white;
+	font-size: 1.3rem;
+	background: #779be7;
+}
+
+.default:hover {
+	background: #00253b;
+	color: white;
+	border-color: #00253b;
+}
+
+.info {
+	border-color: #ff00ff;
+	background: #ff00ff;
+}
+
+.info:hover {
+	background: #d800d8;
+	border-color: #d800d8;
+}
