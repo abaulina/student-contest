@@ -1,7 +1,7 @@
-﻿using StudentContest.Api.Models;
+﻿using System;
+using StudentContest.Api.Models;
 using StudentContest.Api.Validation;
 using Xunit;
-using ArgumentException = System.ArgumentException;
 
 namespace Tests
 {

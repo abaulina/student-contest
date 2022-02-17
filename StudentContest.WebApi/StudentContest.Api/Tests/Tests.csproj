@@ -25,4 +25,10 @@
     <ProjectReference Include="..\StudentContest.Api\StudentContest.Api.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="StudentContest.Api">
+      <HintPath>..\StudentContest.Api\obj\Debug\net6.0\StudentContest.Api.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
