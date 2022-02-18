@@ -1,29 +1,24 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
+using Newtonsoft.Json;
 using StudentContest.Api.Models;
-using Microsoft.EntityFrameworkCore;
 
-namespace StudentContest.Api.Tests
+namespace StudentContest.Api.Tests.Helpers
 {
-    internal class UsersDatabaseFake : IDisposable
+    internal class Utilities
     {
-        private readonly UserContext _context;
-
-        public UsersDatabaseFake()
+        public static void InitializeDbForTests(UserContext db)
         {
-            var options = new DbContextOptionsBuilder<UserContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
-            _context = new UserContext(options);
-            _context.Database.EnsureDeleted();
-            _context.Database.EnsureCreated();
-            Seed();
+            db.Users.AddRange(Seed());
+            db.SaveChanges();
         }
 
-        public UserContext GetContext()
-        {
-            return _context;
-        }
-
-        private void Seed()
+        public static StringContent GetStringContent(object obj)
+            => new(JsonConvert.SerializeObject(obj), Encoding.Default, "application/json");
+        
+        private static IEnumerable<User> Seed()
         {
             var users = new User[] {
                 new()
@@ -43,14 +38,7 @@ namespace StudentContest.Api.Tests
                     Email = "second@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678", RefreshTokens = new List<RefreshToken> {new() {Token = "notRevoked", Expires = DateTime.Now.AddMinutes(5)}}
                 },
             };
-            _context.Users.AddRange(users);
-            _context.SaveChanges();
-        }
-
-        public void Dispose()
-        {
-            _context.Database.EnsureDeleted();
-            _context.Dispose();
+            return users;
         }
     }
 }

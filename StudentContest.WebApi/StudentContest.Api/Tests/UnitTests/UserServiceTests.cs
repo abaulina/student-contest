@@ -11,7 +11,7 @@ using StudentContest.Api.Services;
 using StudentContest.Api.Validation;
 using Xunit;
 
-namespace Tests
+namespace StudentContest.Api.Tests.UnitTests
 {
     public class UserServiceTests
     {

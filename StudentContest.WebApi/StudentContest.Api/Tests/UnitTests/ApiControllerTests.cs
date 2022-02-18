@@ -10,7 +10,7 @@ using StudentContest.Api.Models;
 using StudentContest.Api.Services;
 using Xunit;
 
-namespace Tests
+namespace StudentContest.Api.Tests.UnitTests
 {
     public class ApiControllerTests
     {

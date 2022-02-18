@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StudentContest.Api", "StudentContest.Api\StudentContest.Api.csproj", "{45BE0BFA-8E44-41C0-B0A4-3B3196AF15CE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{82E9301D-7ECC-436E-A33D-9DAE5BF26E95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StudentContest.Api.Tests", "Tests\StudentContest.Api.Tests.csproj", "{82E9301D-7ECC-436E-A33D-9DAE5BF26E95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
