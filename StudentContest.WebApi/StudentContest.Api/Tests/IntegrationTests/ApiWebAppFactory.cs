@@ -38,8 +38,6 @@ namespace StudentContest.Api.Tests.IntegrationTests
                 using var userContext = scope.ServiceProvider.GetRequiredService<UserContext>();
                 try
                 {
-                    if (userContext.Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
-                        userContext.Database.Migrate();
                     userContext.Database.EnsureCreated();
                     Utilities.InitializeDbForTests(userContext);
                 }

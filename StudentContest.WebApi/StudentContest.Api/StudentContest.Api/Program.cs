@@ -31,7 +31,8 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<UserContext>();
-    context.Database.Migrate();
+    if (!context.Database.IsInMemory())
+        context.Database.Migrate();
 }
 
 if (app.Environment.IsDevelopment())

@@ -21,5 +21,16 @@ namespace StudentContest.Api.Models
             Token = token;
             RefreshToken = refreshToken;
         }
+
+        [JsonConstructor]
+        public AuthenticateResponse(int id, string firstName, string lastName, string email, string token, string? refreshToken)
+        {
+            Id = id;
+            FirstName = firstName;
+            LastName = lastName;
+            Email = email;
+            Token = token;
+            RefreshToken = refreshToken;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Security.Authentication;
 using System.Text.Json;
+using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
 
 namespace StudentContest.Api.ExceptionMiddleware
@@ -39,6 +40,7 @@ namespace StudentContest.Api.ExceptionMiddleware
                 ArgumentException _ => (int)HttpStatusCode.BadRequest,
                 DbUpdateException _ => (int)HttpStatusCode.InternalServerError,
                 InvalidCredentialException => (int)HttpStatusCode.Unauthorized,
+                SaltParseException => (int)HttpStatusCode.Unauthorized,
                 _ => (int)HttpStatusCode.BadRequest
             };
 
