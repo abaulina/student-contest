@@ -10,9 +10,6 @@ namespace StudentContest.Api.Models
         public string LastName { get; set; }
         [JsonIgnore]
         public string PasswordHash { get; set; }
-        
-        [JsonIgnore]
-        public List<RefreshToken> RefreshTokens { get; set; }
 
         public User(){}
 

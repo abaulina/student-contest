@@ -1,4 +1,7 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using StudentContest.Api.Authorization;
 using StudentContest.Api.ExceptionMiddleware;
 using StudentContest.Api.Helpers;
@@ -8,7 +11,7 @@ using StudentContest.Api.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<UserContext>(opt =>
+builder.Services.AddDbContext<AuthenticationContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("Sqlite")));
 
 builder.Services.AddCors(options => options.AddPolicy("ApiCorsPolicy", corsPolicyBuilder =>
@@ -18,19 +21,39 @@ builder.Services.AddCors(options => options.AddPolicy("ApiCorsPolicy", corsPolic
 }));
 builder.Services.AddControllers().AddNewtonsoftJson();
 
-builder.Services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+
+var authenticationConfiguration = new AuthenticationConfiguration();
+builder.Configuration.Bind("Authentication", authenticationConfiguration);
+builder.Services.AddSingleton(authenticationConfiguration);
+
+builder.Services.Configure<AuthenticationConfiguration>(builder.Configuration.GetSection("AuthenticationConfiguration"));
 
 builder.Services.AddSingleton<ILogger, FileLogger>();
+builder.Services.AddSingleton<RefreshTokenValidator>();
+builder.Services.AddSingleton<Authenticator>();
 builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
-builder.Services.AddSingleton<IJwtUtils,JwtUtils>();
 builder.Services.AddScoped<IRegisterRequestValidator, RegisterRequestValidator>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>
+{
+    o.TokenValidationParameters = new TokenValidationParameters()
+    {
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(authenticationConfiguration.AccessTokenSecret)),
+        ValidIssuer = authenticationConfiguration.Issuer,
+        ValidAudience = authenticationConfiguration.Audience,
+        ValidateIssuerSigningKey = true,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<UserContext>();
+    var context = scope.ServiceProvider.GetRequiredService<AuthenticationContext>();
     if (!context.Database.IsInMemory())
         context.Database.Migrate();
 }
@@ -46,11 +69,11 @@ app.UseRouting(); //?
 
 app.UseCors("ApiCorsPolicy");
 
+app.UseAuthentication();
+
 app.UseAuthorization(); //?
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
-
-app.UseMiddleware<JwtMiddleware>();
 
 app.MapControllers();
 

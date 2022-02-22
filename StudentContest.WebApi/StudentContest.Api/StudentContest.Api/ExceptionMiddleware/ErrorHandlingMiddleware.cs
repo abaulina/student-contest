@@ -3,6 +3,7 @@ using System.Security.Authentication;
 using System.Text.Json;
 using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace StudentContest.Api.ExceptionMiddleware
 {
@@ -41,6 +42,8 @@ namespace StudentContest.Api.ExceptionMiddleware
                 DbUpdateException _ => (int)HttpStatusCode.InternalServerError,
                 InvalidCredentialException => (int)HttpStatusCode.Unauthorized,
                 SaltParseException => (int)HttpStatusCode.Unauthorized,
+                SecurityTokenException => (int)HttpStatusCode.Unauthorized,
+                KeyNotFoundException => (int)HttpStatusCode.NotFound,
                 _ => (int)HttpStatusCode.BadRequest
             };
 

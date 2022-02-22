@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
@@ -10,9 +9,10 @@ namespace StudentContest.Api.Tests.Helpers
 {
     internal class Utilities
     {
-        public static void InitializeDbForTests(UserContext db)
+        public static void InitializeDbForTests(AuthenticationContext db)
         {
             db.Users.AddRange(Seed());
+            db.RefreshTokens.AddRange(SeedRefreshTokens());
             db.SaveChanges();
         }
 
@@ -33,14 +33,27 @@ namespace StudentContest.Api.Tests.Helpers
                 },
                 new()
                 {
-                    Email = "first@example.com", FirstName = "Test", LastName = "User", PasswordHash = passwordHasher.HashPassword("12345678"), RefreshTokens = new List<RefreshToken> {new() {Token = "alreadyRevoked", Revoked = DateTime.Now.AddMinutes(-5)}}
+                    Email = "first@example.com", FirstName = "Test", LastName = "User", PasswordHash = passwordHasher.HashPassword("12345678")
                 },
                 new()
                 {
-                    Email = "second@example.com", FirstName = "Test", LastName = "User", PasswordHash = passwordHasher.HashPassword("12345678"), RefreshTokens = new List<RefreshToken> {new() {Token = "notRevoked", Expires = DateTime.Now.AddMinutes(5)}}
+                    Email = "second@example.com", FirstName = "Test", LastName = "User", PasswordHash = passwordHasher.HashPassword("12345678")
                 }
             };
             return users;
+        }
+
+        private static IEnumerable<RefreshToken> SeedRefreshTokens()
+        {
+            var refreshTokens = new List<RefreshToken>()
+            {
+                new() {UserId = 3, Token = "alreadyRevoked"},
+                new()
+                {
+                    UserId = 4, Token = "notRevoked"
+                }
+            };
+            return refreshTokens;
         }
     }
 }

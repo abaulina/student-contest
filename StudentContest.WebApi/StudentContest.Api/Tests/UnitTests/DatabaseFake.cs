@@ -5,20 +5,20 @@ using StudentContest.Api.Tests.Helpers;
 
 namespace StudentContest.Api.Tests.UnitTests
 {
-    internal class UsersDatabaseFake: IDisposable
+    internal class DatabaseFake: IDisposable
     {
-        private readonly UserContext _context;
+        private readonly AuthenticationContext _context;
 
-        public UsersDatabaseFake()
+        public DatabaseFake()
         {
-            var options = new DbContextOptionsBuilder<UserContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
-            _context = new UserContext(options);
+            var options = new DbContextOptionsBuilder<AuthenticationContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
+            _context = new AuthenticationContext(options);
             _context.Database.EnsureDeleted();
             _context.Database.EnsureCreated();
             Utilities.InitializeDbForTests(_context);
         }
 
-        public UserContext GetContext()
+        public AuthenticationContext GetContext()
         {
             return _context;
         }

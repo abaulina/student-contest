@@ -7,7 +7,7 @@ using StudentContest.Api.Models;
 
 namespace StudentContest.Api.Migrations
 {
-    [DbContext(typeof(UserContext))]
+    [DbContext(typeof(AuthenticationContext))]
     partial class UserContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

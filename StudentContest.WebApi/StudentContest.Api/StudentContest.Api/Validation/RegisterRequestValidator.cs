@@ -10,9 +10,9 @@ namespace StudentContest.Api.Validation
 
     public class RegisterRequestValidator : IRegisterRequestValidator
     {
-        private readonly UserContext _context;
+        private readonly AuthenticationContext _context;
 
-        public RegisterRequestValidator(UserContext context)
+        public RegisterRequestValidator(AuthenticationContext context)
         {
             _context = context;
         }

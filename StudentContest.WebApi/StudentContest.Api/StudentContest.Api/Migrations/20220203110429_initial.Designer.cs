@@ -10,7 +10,7 @@ using StudentContest.Api.Models;
 
 namespace StudentContest.Api.Migrations
 {
-    [DbContext(typeof(UserContext))]
+    [DbContext(typeof(AuthenticationContext))]
     [Migration("20220203110429_initial")]
     partial class initial
     {

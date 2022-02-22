@@ -3,70 +3,56 @@ using Microsoft.EntityFrameworkCore;
 using StudentContest.Api.Authorization;
 using StudentContest.Api.Helpers;
 using StudentContest.Api.Models;
+using StudentContest.Api.Services.RefreshTokenRepository;
 using StudentContest.Api.Validation;
 
 namespace StudentContest.Api.Services
 {
     public interface IUserService
     {
-        Task<AuthenticateResponse> Login(LoginRequest loginRequest, string ipAddress);
-        Task Logout(string refreshToken, string ipAddress);
-        Task<User?> GetCurrentUserInfo(int id);
+        Task<AuthenticatedResponse> Login(LoginRequest loginRequest);
+        Task Logout(int userId);
+        Task<User?> GetUserInfo(int id);
         Task Register(RegisterRequest registerRequest);
-        Task<AuthenticateResponse> RefreshToken (string refreshToken, string ipAddress);
+        Task<AuthenticatedResponse> RefreshToken (string refreshToken);
     }
 
     public class UserService : IUserService
     {
-        private readonly UserContext _context;
+        private readonly AuthenticationContext _context;
         private readonly IPasswordHasher _passwordHasher;
-        private readonly IJwtUtils _jwtUtils;
         private readonly IRegisterRequestValidator _registerRequestValidator;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly RefreshTokenValidator _refreshTokenValidator;
+        private readonly Authenticator _authenticator;
 
-        public UserService(UserContext context, IJwtUtils jwtUtils, IRegisterRequestValidator registerRequestValidator, IPasswordHasher passwordHasher)
+        public UserService(AuthenticationContext context, IRegisterRequestValidator registerRequestValidator, IPasswordHasher passwordHasher, RefreshTokenValidator refreshTokenValidator, IRefreshTokenRepository refreshTokenRepository, Authenticator authenticator)
         {
             _context = context;
-            _jwtUtils = jwtUtils;
             _registerRequestValidator = registerRequestValidator;
             _passwordHasher = passwordHasher;
+            _refreshTokenValidator = refreshTokenValidator;
+            _refreshTokenRepository = refreshTokenRepository;
+            _authenticator = authenticator;
         }
 
-        public async Task<AuthenticateResponse> Login(LoginRequest loginRequest, string ipAddress)
+        public async Task<AuthenticatedResponse> Login(LoginRequest loginRequest)
         {
             var user = await  _context.Users.FirstOrDefaultAsync(x => x.Email == loginRequest.Email);
 
             if (user == null || !_passwordHasher.VerifyPassword( loginRequest.Password, user.PasswordHash))
                 throw new InvalidCredentialException("Username or password is incorrect");
             
-            var jwtToken = _jwtUtils.GenerateToken(user);
-            var refreshToken = _jwtUtils.GenerateRefreshToken(ipAddress);
-            user.RefreshTokens.Add(refreshToken);
-
-            _jwtUtils.RemoveOldRefreshTokens(user);
-
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
-
-            return new AuthenticateResponse(user, jwtToken, refreshToken.Token);
+            var response = await _authenticator.Authenticate(user);
+            return response;
         }
 
-        public async Task Logout(string token, string ipAddress)
+        public async Task Logout(int userId)
         {
-            if (string.IsNullOrEmpty(token))
-                throw new ArgumentException("Token is required");
-            
-            var user = await GetUserByRefreshToken(token);
-            var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
-
-            if (!refreshToken.IsActive)
-                throw new ArgumentException("Invalid token");
-
-            _jwtUtils.RevokeRefreshToken(refreshToken, ipAddress, "Revoked without replacement due to logout", null);
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
+            await _refreshTokenRepository.DeleteAll(userId);
         }
 
-        public async Task<User?> GetCurrentUserInfo(int id)
+        public async Task<User?> GetUserInfo(int id)
         {
             return await GetUser(id);
         }
@@ -82,46 +68,29 @@ namespace StudentContest.Api.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<AuthenticateResponse> RefreshToken(string token, string ipAddress)
+        public async Task<AuthenticatedResponse> RefreshToken(string token)
         {
-            var user = await GetUserByRefreshToken(token);
-            var refreshToken = user.RefreshTokens.Single(x => x.Token == token);
+            _refreshTokenValidator.Validate(token);
+            var refreshToken = await _refreshTokenRepository.GetByToken(token);
+            
+            if (refreshToken==null)
+                throw new KeyNotFoundException("Invalid refresh token");
 
-            if (refreshToken.IsRevoked)
-            {
-                _jwtUtils.RevokeDescendantRefreshTokens(refreshToken, user, ipAddress, $"Attempted reuse of revoked ancestor token: {token}");
-                _context.Users.Update(user);
-                await _context.SaveChangesAsync();
-            }
+            await _refreshTokenRepository.Delete(refreshToken.Id);
 
-            if (!refreshToken.IsActive)
-                throw new ArgumentException("Invalid refresh token");
+            var user = await GetUser(refreshToken.UserId);
 
-            var newRefreshToken = _jwtUtils.RotateRefreshToken(refreshToken, ipAddress);
-            user.RefreshTokens.Add(newRefreshToken);
-
-            _jwtUtils.RemoveOldRefreshTokens(user);
-
-            _context.Users.Update(user);
-            await _context.SaveChangesAsync();
-
-            return new AuthenticateResponse(user, _jwtUtils.GenerateToken(user), newRefreshToken.Token);
+            if (user == null)
+                throw new ArgumentException("User not found");
+            
+            var response = await _authenticator.Authenticate(user);
+            return response;
         }
 
         private async Task<User?> GetUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null) throw new KeyNotFoundException("User not found");
-            return user;
-        }
-
-        private async Task<User> GetUserByRefreshToken(string token)
-        {
-            var user = await _context.Users.SingleOrDefaultAsync(u => u.RefreshTokens.Any(t => t.Token == token));
-
-            if (user == null)
-                throw new ArgumentException("Invalid refresh token");
-
             return user;
         }
     }

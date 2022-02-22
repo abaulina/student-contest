@@ -104,7 +104,7 @@ namespace StudentContest.Api.Tests.IntegrationTests
             _client.DefaultRequestHeaders.Add("X-Forwarded-For", "ipAddress");
 
             var response = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
-            var result = await response.Content.ReadAsAsync<AuthenticateResponse>();
+            var result = await response.Content.ReadAsAsync<AuthenticatedResponse>();
             _client.DefaultRequestHeaders.Add("Authorization",result.Token);
             var getResponse = await _client.GetAsync($"users/{result.Id}");
             var getResponseResult = await getResponse.Content.ReadAsAsync<User>();
@@ -176,7 +176,7 @@ namespace StudentContest.Api.Tests.IntegrationTests
             _client.DefaultRequestHeaders.Add(HeaderNames.Cookie, "refreshToken=notRevoked");
 
             var response = await _client.PostAsync("users/refresh-token",null);
-            var result = await response.Content.ReadAsAsync<AuthenticateResponse>();
+            var result = await response.Content.ReadAsAsync<AuthenticatedResponse>();
             _client.DefaultRequestHeaders.Add(HeaderNames.Cookie, "refreshToken=" + result.RefreshToken);
             var getResponse = await _client.GetAsync($"users/4");
 

@@ -11,7 +11,7 @@ namespace StudentContest.Api.Tests.UnitTests
 
         public RegisterRequestValidatorTests()
         {
-            _registerRequestValidator = new RegisterRequestValidator(new UsersDatabaseFake().GetContext());
+            _registerRequestValidator = new RegisterRequestValidator(new DatabaseFake().GetContext());
         }
 
         [Theory]

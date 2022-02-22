@@ -39,10 +39,10 @@ namespace StudentContest.Api.Tests.UnitTests
         {
             var user = new User
                 {Email = "test@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"};
-            _userServiceFake.Setup(x => x.GetCurrentUserInfo(It.IsAny<int>())).ReturnsAsync(user);
+            _userServiceFake.Setup(x => x.GetUserInfo(It.IsAny<int>())).ReturnsAsync(user);
             var controller = new UsersController(_userServiceFake.Object);
 
-            var result = await controller.GetUser(0);
+            var result = await controller.GetUser();
 
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
             var returnValue = Assert.IsType<User>(okResult.Value);
@@ -52,10 +52,15 @@ namespace StudentContest.Api.Tests.UnitTests
         [Fact]
         public async Task Logout_Success_ReturnsOk()
         {
-            var httpContext = CreateHttpContextWithMockRequestIp();
-            httpContext.Request.Cookies = MockRequestCookieCollection("refreshToken", "refreshToken");
-            
-            _userServiceFake.Setup(x => x.Logout(It.IsAny<string>(), It.IsAny<string>()));
+            var httpContext = new DefaultHttpContext
+            {
+                Request =
+                {
+                    Cookies = MockRequestCookieCollection("refreshToken", "refreshToken")
+                }
+            };
+
+            _userServiceFake.Setup(x => x.Logout(It.IsAny<int>()));
             var controller = new UsersController(_userServiceFake.Object)
             {
                 ControllerContext = new ControllerContext
@@ -67,16 +72,16 @@ namespace StudentContest.Api.Tests.UnitTests
             var result = await controller.Logout();
 
             Assert.IsType<OkResult>(result);
-            _userServiceFake.Verify(x => x.Logout("refreshToken", "someIp"), Times.Once);
+            _userServiceFake.Verify(x => x.Logout(It.IsAny<int>()), Times.Once);
         }
 
         [Fact]
         public async Task Login_Success_ReturnsOkWithData()
         {
-            var httpContext = CreateHttpContextWithMockRequestIp();
+            var httpContext = new DefaultHttpContext();
             var user = new User
                 { Email = "test@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678" };
-            _userServiceFake.Setup(x => x.Login(It.IsAny<LoginRequest>(), It.IsAny<string>())).ReturnsAsync(new AuthenticateResponse(user, "token", "refreshToken"));
+            _userServiceFake.Setup(x => x.Login(It.IsAny<LoginRequest>())).ReturnsAsync(new AuthenticatedResponse(user.Id, "token", "refreshToken"));
             var loginRequest = new LoginRequest { Email = "test@example.com", Password = "12345678" };
             var controller = new UsersController(_userServiceFake.Object)
             {
@@ -89,8 +94,8 @@ namespace StudentContest.Api.Tests.UnitTests
             var result = await controller.Login(loginRequest);
 
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<AuthenticateResponse>(okResult.Value);
-            Assert.Equal(user.Email,returnValue.Email);
+            var returnValue = Assert.IsType<AuthenticatedResponse>(okResult.Value);
+            Assert.Equal(user.Id,returnValue.Id);
             Assert.Equal("token",returnValue.Token);
             Assert.Equal("refreshToken", returnValue.RefreshToken);
         }
@@ -98,12 +103,17 @@ namespace StudentContest.Api.Tests.UnitTests
         [Fact]
         public async Task RefreshToken_Success_ReturnsOkWithData()
         {
-            var httpContext = CreateHttpContextWithMockRequestIp();
-            httpContext.Request.Cookies = MockRequestCookieCollection("refreshToken", "refreshToken");
+            var httpContext = new DefaultHttpContext
+            {
+                Request =
+                {
+                    Cookies = MockRequestCookieCollection("refreshToken", "refreshToken")
+                }
+            };
 
             var user = new User
                 { Email = "test@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678" };
-            _userServiceFake.Setup(x => x.RefreshToken(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new AuthenticateResponse(user, "token", "refreshToken"));
+            _userServiceFake.Setup(x => x.RefreshToken(It.IsAny<string>())).ReturnsAsync(new AuthenticatedResponse(user.Id, "token", "refreshToken"));
             var controller = new UsersController(_userServiceFake.Object)
             {
                 ControllerContext = new ControllerContext
@@ -115,8 +125,8 @@ namespace StudentContest.Api.Tests.UnitTests
             var result = await controller.RefreshToken();
 
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<AuthenticateResponse>(okResult.Value);
-            Assert.Equal(user.Email, returnValue.Email);
+            var returnValue = Assert.IsType<AuthenticatedResponse>(okResult.Value);
+            Assert.Equal(user.Id, returnValue.Id);
             Assert.Equal("token", returnValue.Token);
             Assert.Equal("refreshToken", returnValue.RefreshToken);
         }
@@ -134,13 +144,6 @@ namespace StudentContest.Api.Tests.UnitTests
             var cookiesFeature = new RequestCookiesFeature(featureCollection);
 
             return cookiesFeature.Cookies;
-        }
-
-        private static DefaultHttpContext CreateHttpContextWithMockRequestIp()
-        {
-            var httpContext = new DefaultHttpContext();
-            httpContext.Request.Headers["X-Forwarded-For"] = "someIp";
-            return httpContext;
         }
     }
 }

@@ -21,25 +21,25 @@ namespace StudentContest.Api.Tests.IntegrationTests
                 var defaultILogger = services.SingleOrDefault(d => d.ServiceType == typeof(ILogger));
                 var descriptor = services.SingleOrDefault(
                     d => d.ServiceType ==
-                         typeof(DbContextOptions<UserContext>));
+                         typeof(DbContextOptions<AuthenticationContext>));
 
                 services.Remove(descriptor);
                 services.Remove(defaultILogger);
 
                 services.AddSingleton<ILogger>(_loggerFake);
 
-                services.AddDbContext<UserContext>(options =>
+                services.AddDbContext<AuthenticationContext>(options =>
                 {
                     options.UseInMemoryDatabase("InMemoryDbForTesting");
                 });
                 
                 var sp = services.BuildServiceProvider();
                 using var scope = sp.CreateScope();
-                using var userContext = scope.ServiceProvider.GetRequiredService<UserContext>();
+                using var authenticationContext = scope.ServiceProvider.GetRequiredService<AuthenticationContext>();
                 try
                 {
-                    userContext.Database.EnsureCreated();
-                    Utilities.InitializeDbForTests(userContext);
+                    authenticationContext.Database.EnsureCreated();
+                    Utilities.InitializeDbForTests(authenticationContext);
                 }
                 catch (Exception ex)
                 {

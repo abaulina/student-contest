@@ -1,4 +1,5 @@
 ﻿#nullable disable
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,6 @@ namespace StudentContest.Api.Controllers
     [EnableCors("ApiCorsPolicy")]
     [Route("users")]
     [ApiController]
-    [Authorization.Authorize]
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -20,14 +20,20 @@ namespace StudentContest.Api.Controllers
             _userService = userService;
         }
 
-        [HttpGet("{id:int}")]
-        public async Task<ActionResult<User>> GetUser(int id)
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<User>> GetUser()
         {
-            var userInfo = await _userService.GetCurrentUserInfo(id);
+            var rawUserId = HttpContext.User.FindFirstValue("id");
+            if (!int.TryParse(rawUserId, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var userInfo = await _userService.GetUserInfo(userId);
             return Ok(userInfo);
         }
 
-        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterRequest registerRequest)
         {
@@ -35,30 +41,33 @@ namespace StudentContest.Api.Controllers
             return Ok();
         }
 
-        [AllowAnonymous]
+        [Authorize]
         [HttpDelete("logout")]
         public async Task<IActionResult> Logout()
         {
-            var refreshToken = Request.Cookies["refreshToken"];
-            await _userService.Logout(refreshToken, IpAddress());
+            var rawUserId = HttpContext.User.FindFirstValue("id");
+            if (!int.TryParse(rawUserId, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            await _userService.Logout(userId);
             return Ok();
         }
 
-        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
-            var response = await _userService.Login(loginRequest, IpAddress());
+            var response = await _userService.Login(loginRequest);
             SetTokenCookie(response.RefreshToken);
             return Ok(response);
         }
 
-        [AllowAnonymous]
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
             var refreshToken = Request.Cookies["refreshToken"];
-            var response = await _userService.RefreshToken(refreshToken, IpAddress());
+            var response = await _userService.RefreshToken(refreshToken);
             SetTokenCookie(response.RefreshToken);
             return Ok(response);
         }
@@ -71,13 +80,6 @@ namespace StudentContest.Api.Controllers
                 Expires = DateTime.UtcNow.AddDays(7)
             };
             Response.Cookies.Append("refreshToken", token, cookieOptions);
-        }
-
-        private string IpAddress()
-        {
-            if (Request.Headers.ContainsKey("X-Forwarded-For"))
-                return Request.Headers["X-Forwarded-For"];
-            return HttpContext.Connection.RemoteIpAddress.MapToIPv4().ToString();
         }
     }
 }
