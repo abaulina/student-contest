@@ -1,8 +1,7 @@
-﻿using StudentContest.Api.Authorization;
-using StudentContest.Api.Models;
+﻿using StudentContest.Api.Models;
 using StudentContest.Api.Services.RefreshTokenRepository;
 
-namespace StudentContest.Api.Services
+namespace StudentContest.Api.Auth
 {
     public class Authenticator
     {

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -37,11 +38,23 @@ namespace StudentContest.Api.Tests.UnitTests
         [Fact]
         public async Task GetUser_Success_ReturnsOkWithData()
         {
+            var httpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
+                {
+                    new("id", "2")
+                }, "mock"))
+            };
             var user = new User
                 {Email = "test@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"};
-            _userServiceFake.Setup(x => x.GetUserInfo(It.IsAny<int>())).ReturnsAsync(user);
-            var controller = new UsersController(_userServiceFake.Object);
-
+            _userServiceFake.Setup(x => x.GetUserInfo(It.IsAny<string>())).ReturnsAsync(user);
+            var controller = new UsersController(_userServiceFake.Object)
+            {
+                ControllerContext =
+                {
+                    HttpContext = httpContext
+                }
+            };
             var result = await controller.GetUser();
 
             var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -54,12 +67,11 @@ namespace StudentContest.Api.Tests.UnitTests
         {
             var httpContext = new DefaultHttpContext
             {
-                Request =
+                User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
                 {
-                    Cookies = MockRequestCookieCollection("refreshToken", "refreshToken")
-                }
+                    new("id", "2")
+                }, "mock"))
             };
-
             _userServiceFake.Setup(x => x.Logout(It.IsAny<int>()));
             var controller = new UsersController(_userServiceFake.Object)
             {

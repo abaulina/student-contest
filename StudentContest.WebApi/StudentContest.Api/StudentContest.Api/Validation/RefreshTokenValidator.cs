@@ -1,9 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using StudentContest.Api.Helpers;
+using StudentContest.Api.Models;
 
-namespace StudentContest.Api.Authorization
+namespace StudentContest.Api.Validation
 {
     public class RefreshTokenValidator
     {

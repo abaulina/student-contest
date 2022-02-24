@@ -1,12 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using StudentContest.Api.Helpers;
 using StudentContest.Api.Models;
 
-namespace StudentContest.Api.Authorization
+namespace StudentContest.Api.Auth
 {
     public interface ITokenGenerator
     {
@@ -18,14 +16,14 @@ namespace StudentContest.Api.Authorization
     {
         private readonly AuthenticationConfiguration _authenticationConfiguration;
 
-        public TokenGenerator(IOptions<AuthenticationConfiguration> authenticationConfiguration)
+        public TokenGenerator(AuthenticationConfiguration authenticationConfiguration)
         {
-            _authenticationConfiguration = authenticationConfiguration.Value;
+            _authenticationConfiguration = authenticationConfiguration;
         }
 
         public string GenerateJwtToken(User user)
         {
-            var claims = new List<Claim>()
+            var claims = new List<Claim>
             {
                 new("id", user.Id.ToString())
             };

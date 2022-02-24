@@ -4,7 +4,7 @@ namespace StudentContest.Api.Services.RefreshTokenRepository
 {
     public interface IRefreshTokenRepository
     {
-        Task<RefreshToken> GetByToken(string token);
+        Task<RefreshToken?> GetByToken(string token);
 
         Task Create(RefreshToken refreshToken);
 

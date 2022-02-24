@@ -45,9 +45,9 @@ namespace StudentContest.Api.Tests.Helpers
 
         private static IEnumerable<RefreshToken> SeedRefreshTokens()
         {
-            var refreshTokens = new List<RefreshToken>()
+            var refreshTokens = new List<RefreshToken>
             {
-                new() {UserId = 3, Token = "alreadyRevoked"},
+                new() {UserId = 3, Token = "3token"},
                 new()
                 {
                     UserId = 4, Token = "notRevoked"

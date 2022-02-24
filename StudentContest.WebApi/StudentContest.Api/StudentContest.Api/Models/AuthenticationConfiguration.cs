@@ -1,4 +1,4 @@
-﻿namespace StudentContest.Api.Helpers
+﻿namespace StudentContest.Api.Models
 {
     public class AuthenticationConfiguration
     {

@@ -1,6 +1,6 @@
 ﻿using System.Security.Authentication;
 using Microsoft.EntityFrameworkCore;
-using StudentContest.Api.Authorization;
+using StudentContest.Api.Auth;
 using StudentContest.Api.Helpers;
 using StudentContest.Api.Models;
 using StudentContest.Api.Services.RefreshTokenRepository;
@@ -12,7 +12,7 @@ namespace StudentContest.Api.Services
     {
         Task<AuthenticatedResponse> Login(LoginRequest loginRequest);
         Task Logout(int userId);
-        Task<User?> GetUserInfo(int id);
+        Task<User?> GetUserInfo(string token);
         Task Register(RegisterRequest registerRequest);
         Task<AuthenticatedResponse> RefreshToken (string refreshToken);
     }
@@ -52,9 +52,13 @@ namespace StudentContest.Api.Services
             await _refreshTokenRepository.DeleteAll(userId);
         }
 
-        public async Task<User?> GetUserInfo(int id)
+        public async Task<User?> GetUserInfo(string token)
         {
-            return await GetUser(id);
+            _refreshTokenValidator.Validate(token);
+            var refreshToken = await _refreshTokenRepository.GetByToken(token);
+            if (refreshToken == null)
+                throw new KeyNotFoundException("Invalid refresh token");
+            return await GetUser(refreshToken.UserId);
         }
 
         public async Task Register(RegisterRequest registerRequest)
@@ -79,9 +83,6 @@ namespace StudentContest.Api.Services
             await _refreshTokenRepository.Delete(refreshToken.Id);
 
             var user = await GetUser(refreshToken.UserId);
-
-            if (user == null)
-                throw new ArgumentException("User not found");
             
             var response = await _authenticator.Authenticate(user);
             return response;

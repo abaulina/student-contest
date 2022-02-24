@@ -1,9 +1,9 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using Moq;
-using StudentContest.Api.Authorization;
+using StudentContest.Api.Auth;
 using StudentContest.Api.Helpers;
 using StudentContest.Api.Models;
 using StudentContest.Api.Services;
@@ -52,145 +52,97 @@ namespace StudentContest.Api.Tests.UnitTests
         [Fact]
         public async Task Login_Success_AddRefreshToken()
         {
-            var bCryptFake = new Mock<IPasswordHasher>();
-            bCryptFake.Setup(x => x.VerifyPassword(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns((string password, string hash) => password == hash);
-            var authenticatorFake = new Mock<Authenticator>();
-            authenticatorFake.Setup(x => x.Authenticate(It.IsAny<User>())).ReturnsAsync(new AuthenticatedResponse(
-                It.IsAny<int>(), "refreshToken", "token"));
             var refreshTokenRepoFake = new Mock<IRefreshTokenRepository>();
-            refreshTokenRepoFake.Setup(x => x.Create(It.IsAny<RefreshToken>())).Callback((RefreshToken refreshToken) =>
+            refreshTokenRepoFake.Setup(x => x.Create(It.IsAny<RefreshToken>())).Callback((RefreshToken _) =>
             {
                 _context.RefreshTokens.Add(new RefreshToken {Id = -1, Token = "refreshToken", UserId = 1});
+                _context.SaveChanges();
             });
+            var tokenGeneratorFake = new Mock<ITokenGenerator>();
+            tokenGeneratorFake.Setup(x => x.GenerateJwtToken(It.IsAny<User>())).Returns("token");
+            tokenGeneratorFake.Setup(x => x.GenerateRefreshToken()).Returns("refreshToken");
             var userService = new UserService(_context, new Mock<IRegisterRequestValidator>().Object,
-                bCryptFake.Object, new Mock<RefreshTokenValidator>().Object,
-                refreshTokenRepoFake.Object, authenticatorFake.Object);
-            var loginRequest = new LoginRequest { Email = "test@example.com", Password = "12345678" };
+                new BCryptPasswordHasher(), new Mock<RefreshTokenValidator>(new AuthenticationConfiguration()).Object,
+                refreshTokenRepoFake.Object, new Authenticator(tokenGeneratorFake.Object, refreshTokenRepoFake.Object));
+            var loginRequest = new LoginRequest {Email = "test@example.com", Password = "12345678"};
+            var count = _context.RefreshTokens.Count();
 
             var result = await userService.Login(loginRequest);
 
             Assert.IsType<AuthenticatedResponse>(result);
             Assert.Equal("refreshToken", result.RefreshToken);
             Assert.Equal("token", result.Token);
-            bCryptFake.Verify(x => x.VerifyPassword("12345678", "12345678"), Times.Once);
-            Assert.Equal("refreshToken", _context.RefreshTokens.FirstOrDefault(x=> x.UserId==1)!.Token);
+            Assert.Equal(count+1, _context.RefreshTokens.Count());
+            Assert.Equal("refreshToken",_context.RefreshTokens.FirstOrDefault(x => x.UserId==1)!.Token);
         }
 
-        //[Fact]
-        //public async Task Logout_InvalidToken_ThrowsException()
-        //{
-        //    var userService = new UserService(_context, new Mock<IRegisterRequestValidator>().Object,
-        //        new Mock<IPasswordHasher>().Object, new Mock<RefreshTokenValidator>().Object,
-        //        new Mock<IRefreshTokenRepository>().Object, new Mock<Authenticator>().Object);
+        [Fact]
+        public async Task Logout_Success_ChangesDatabase()
+        {
+            var refreshTokenRepoFake = new Mock<IRefreshTokenRepository>();
+            refreshTokenRepoFake.Setup(x => x.DeleteAll(It.IsAny<int>())).Callback((int id) =>
+            {
+                var tkn =_context.RefreshTokens.FirstOrDefault(x => x.UserId==id);
+                _context.RefreshTokens.Remove(tkn);
+                _context.SaveChanges();
+            });
+            var userService = new UserService(_context, new Mock<IRegisterRequestValidator>().Object,
+                new Mock<IPasswordHasher>().Object, new Mock<RefreshTokenValidator>(new AuthenticationConfiguration()).Object,
+                refreshTokenRepoFake.Object, new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<IRefreshTokenRepository>().Object).Object);
+            var count = _context.RefreshTokens.Count();
 
-        //    await Assert.ThrowsAsync<ArgumentException>(() => userService.Logout(It.IsAny<int>()));
-        //}
+            await userService.Logout(3);
 
-        //[Fact]
-        //public async Task Logout_AlreadyRevokedToken_ThrowsException()
-        //{
-        //    var userService = new UserService(_context, new Mock<IRegisterRequestValidator>().Object,
-        //        new Mock<IPasswordHasher>().Object, new Mock<RefreshTokenValidator>().Object,
-        //        new Mock<IRefreshTokenRepository>().Object, new Mock<Authenticator>().Object);
+            Assert.Equal(count - 1, _context.RefreshTokens.Count());
+            Assert.Null( _context.RefreshTokens.FirstOrDefault(x => x.UserId == 3));
+        }
 
+        [Fact]
+        public async Task GetUserInfo_NonExistingUser_ThrowsException()
+        {
+            var userService = new UserService(_context, new Mock<IRegisterRequestValidator>().Object,
+                new Mock<IPasswordHasher>().Object, new Mock<RefreshTokenValidator>(new AuthenticationConfiguration()).Object,
+                new Mock<IRefreshTokenRepository>().Object, new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<IRefreshTokenRepository>().Object).Object);
 
-        //    await Assert.ThrowsAsync<ArgumentException>(() => userService.Logout("alreadyRevoked"));
-        //}
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => userService.GetUserInfo("token"));
+        }
 
-        //[Fact]
-        //public async Task Logout_Success_ChangesDatabase()
-        //{
-        //    var jwtUtilsFake = new Mock<IJwtUtils>();
-        //    jwtUtilsFake
-        //        .Setup(x => x.RevokeRefreshToken(It.IsAny<RefreshToken>(), It.IsAny<string>(), It.IsAny<string>(),
-        //            It.IsAny<string>())).Callback((RefreshToken token, string _, string _, string _) => token.Token = "justRevokedToken");
-        //    var userService = new UserService(_context, new Mock<IRegisterRequestValidator>().Object,
-        //        new Mock<IPasswordHasher>().Object, new Mock<RefreshTokenValidator>().Object,
-        //        new Mock<IRefreshTokenRepository>().Object, new Mock<Authenticator>().Object);
+        [Fact]
+        public async Task GetUser_Success_ReturnsUser()
+        {
+            var refreshTokenRepoFake = new Mock<IRefreshTokenRepository>();
+            refreshTokenRepoFake.Setup(x => x.GetByToken(It.IsAny<string>())).ReturnsAsync((string token) =>
+                _context.RefreshTokens.FirstOrDefault(t => t.Token == token));
+            var userService = new UserService(_context, new Mock<IRegisterRequestValidator>().Object,
+                new Mock<IPasswordHasher>().Object, new Mock<RefreshTokenValidator>(new AuthenticationConfiguration()).Object,
+                refreshTokenRepoFake.Object, new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<IRefreshTokenRepository>().Object).Object);
 
+            var result = await userService.GetUserInfo("3token");
 
-        //    await userService.Logout();
+            Assert.NotNull(result);
+            Assert.IsType<User>(result);
+            Assert.Equal(3, result!.Id);
+        }
 
-        //    jwtUtilsFake.Verify(x=> x.RevokeRefreshToken(It.IsAny<RefreshToken>(), "ipAddress", It.IsAny<string>(),
-        //        It.IsAny<string>()), Times.Once);
-        //    Assert.NotNull(_context.Users.FirstOrDefault(x => x.RefreshTokens.LastOrDefault().Token == "justRevokedToken"));
-        //}
+        [Fact]
+        public async Task Register_Success_ChangesDatabase()
+        {
+            var userService = new UserService(_context, new Mock<IRegisterRequestValidator>().Object,
+                new BCryptPasswordHasher(), new Mock<RefreshTokenValidator>(new AuthenticationConfiguration()).Object,
+                new Mock<IRefreshTokenRepository>().Object, new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<IRefreshTokenRepository>().Object).Object);
+            var registerRequest = new RegisterRequest
+            {
+                Email = "newUser@example.com",
+                FirstName = "New",
+                LastName = "User",
+                Password = "12345678"
+            };
+            var count = _context.Users.Count();
 
-        //[Fact]
-        //public async Task GetUser_NonExistingUser_ThrowsException()
-        //{
-        //    var userService = new UserService(_context, new Mock<IJwtUtils>().Object,
-        //        new Mock<IRegisterRequestValidator>().Object, new Mock<IPasswordHasher>().Object);
+            await userService.Register(registerRequest);
 
-        //    await Assert.ThrowsAsync<KeyNotFoundException>(() => userService.GetCurrentUserInfo(-1));
-        //}
-
-        //[Fact]
-        //public async Task GetUser_Success_ReturnsUser()
-        //{
-        //    var userService = new UserService(_context, new Mock<IJwtUtils>().Object,
-        //        new Mock<IRegisterRequestValidator>().Object, new Mock<IPasswordHasher>().Object);
-
-        //   var result= await userService.GetUserInfo(1);
-
-        //   Assert.NotNull(result);
-        //   Assert.IsType<User>(result);
-        //   Assert.Equal(1, result.Id);
-        //}
-
-        //[Fact]
-        //public async Task Register_Success_ChangesDatabase()
-        //{
-        //    var bCryptFake = new Mock<IPasswordHasher>();
-        //    bCryptFake.Setup(x => x.HashPassword(It.IsAny<string>()))
-        //        .Returns((string password) => password);
-        //    var userService = new UserService(_context, new Mock<IJwtUtils>().Object,
-        //        new Mock<IRegisterRequestValidator>().Object, bCryptFake.Object);
-        //    var registerRequest = new RegisterRequest
-        //    {
-        //        Email = "newUser@example.com", FirstName = "New", LastName = "User",
-        //        Password = "12345678"
-        //    };
-        //    var count = _context.Users.Count();
-
-        //    await userService.Register(registerRequest);
-
-        //    Assert.Equal(count+1, _context.Users.Count());
-        //    Assert.Equal("newUser@example.com",_context.Users.Last().Email);
-        //}
-
-        //[Fact]
-        //public async Task RefreshToken_UnknownToken_ThrowsException()
-        //{
-        //    var userService = new UserService(_context, new Mock<IJwtUtils>().Object,
-        //        new Mock<IRegisterRequestValidator>().Object, new Mock<IPasswordHasher>().Object);
-
-        //    await Assert.ThrowsAsync<ArgumentException>(() => userService.RefreshToken("unknown", "ipAddress"));
-        //}
-
-        //[Fact]
-        //public async Task RefreshToken_NotActiveToken_ThrowsException()
-        //{
-        //    var userService = new UserService(_context, new Mock<IJwtUtils>().Object,
-        //        new Mock<IRegisterRequestValidator>().Object, new Mock<IPasswordHasher>().Object);
-
-        //    await Assert.ThrowsAsync<ArgumentException>(() => userService.RefreshToken("alreadyRevoked", "ipAddress"));
-        //}
-
-        //[Fact]
-        //public async Task RefreshToken_Success_ChangesDatabase()
-        //{
-        //    var jwtUtilsFake = new Mock<IJwtUtils>();
-        //    jwtUtilsFake
-        //        .Setup(x => x.RotateRefreshToken(It.IsAny<RefreshToken>(), It.IsAny<string>()))
-        //        .Returns(new RefreshToken {Token = "rotatedToken"});
-        //    var userService = new UserService(_context, jwtUtilsFake.Object,
-        //        new Mock<IRegisterRequestValidator>().Object, new Mock<IPasswordHasher>().Object);
-
-        //    await userService.RefreshToken("notRevoked");
-
-        //    Assert.Equal("rotatedToken", _context.Users.Last().RefreshTokens.Last().Token);
-        //}
+            Assert.Equal(count + 1, _context.Users.Count());
+            Assert.Equal("newUser@example.com", _context.Users.Last().Email);
+        }
     }
 }

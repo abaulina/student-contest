@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Net.Http.Headers;
 using StudentContest.Api.Models;
@@ -20,7 +21,7 @@ namespace StudentContest.Api.Tests.IntegrationTests
         [Fact]
         public async Task GetUserInfo_UnauthorizedAccess_NotAllowed()
         {
-            var response = await _client.GetAsync("users/0");
+            var response = await _client.GetAsync("users");
 
             Assert.False(response.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -32,7 +33,6 @@ namespace StudentContest.Api.Tests.IntegrationTests
             var registerRequest = new RegisterRequest
                 {Email = "notUsed@example.com", FirstName = "Test", LastName = "User", Password = "12345678"};
             var loginRequest = new LoginRequest{ Email = registerRequest.Email, Password = registerRequest.Password };
-            _client.DefaultRequestHeaders.Add("X-Forwarded-For", "ipAddress");
 
             var response = await _client.PostAsync("users/register", Utilities.GetStringContent(registerRequest));
             var loginResponse = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
@@ -73,7 +73,7 @@ namespace StudentContest.Api.Tests.IntegrationTests
         [Fact]
         public async Task Login_IncorrectBodyType_ReturnsBadRequest()
         {
-            var loginRequest = new { Email = "new@example.com", Password = "12345678", Username = "user" };
+            var loginRequest = new { Password = "12345678", Username = "user" };
 
             var response = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
 
@@ -101,12 +101,11 @@ namespace StudentContest.Api.Tests.IntegrationTests
         {
             var loginRequest = new LoginRequest
             { Email = "test@example.com", Password = "12345678" };
-            _client.DefaultRequestHeaders.Add("X-Forwarded-For", "ipAddress");
 
             var response = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
             var result = await response.Content.ReadAsAsync<AuthenticatedResponse>();
-            _client.DefaultRequestHeaders.Add("Authorization",result.Token);
-            var getResponse = await _client.GetAsync($"users/{result.Id}");
+            _client.DefaultRequestHeaders.Add("Authorization", "Bearer "+result.Token);
+            var getResponse = await _client.GetAsync("users");
             var getResponseResult = await getResponse.Content.ReadAsAsync<User>();
 
             response.EnsureSuccessStatusCode();
@@ -115,70 +114,53 @@ namespace StudentContest.Api.Tests.IntegrationTests
         }
 
         [Fact]
-        public async Task Logout_NoTokenInCookies_ReturnsBadRequest()
+        public async Task Logout_InvalidToken_ReturnsUnauthorized()
         {
-            var response = await _client.DeleteAsync("users/logout");
-            
-            Assert.False(response.IsSuccessStatusCode);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        }
-
-        [Fact]
-        public async Task Logout_InvalidToken_ReturnsBadRequest()
-        {
-            _client.DefaultRequestHeaders.Add("X-Forwarded-For", "ipAddress");
-            _client.DefaultRequestHeaders.Add(HeaderNames.Cookie, "refreshToken=");
-            
             var response = await _client.DeleteAsync("users/logout");
 
             Assert.False(response.IsSuccessStatusCode);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
         public async Task Logout_Success_ImpossibleToReuseToken()
         {
-            _client.DefaultRequestHeaders.Add("X-Forwarded-For", "ipAddress");
-            _client.DefaultRequestHeaders.Add(HeaderNames.Cookie, "refreshToken=notRevoked");
+            var loginRequest = new LoginRequest
+                { Email = "test@example.com", Password = "12345678" };
+            var loginResponse = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
+            var result = await loginResponse.Content.ReadAsAsync<AuthenticatedResponse>();
+            _client.DefaultRequestHeaders.Add("Authorization", "Bearer " + result.Token);
 
-            var response = await _client.DeleteAsync("users/logout");
-            var getResponse = await _client.GetAsync("users/4");
+            var logoutResponse = await _client.DeleteAsync("users/logout");
+            var getResponse = await _client.GetAsync("users");
 
-            response.EnsureSuccessStatusCode();
+            logoutResponse.EnsureSuccessStatusCode();
             Assert.False(getResponse.IsSuccessStatusCode);
-        }
-
-        [Fact]
-        public async Task RefreshToken_NoTokenInCookies_ReturnsBadRequest()
-        {
-            var response = await _client.PostAsync("users/refresh-token", null);
-
-            Assert.False(response.IsSuccessStatusCode);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
         public async Task RefreshToken_InvalidToken_ReturnsBadRequest()
         {
-            _client.DefaultRequestHeaders.Add("X-Forwarded-For", "ipAddress");
-            _client.DefaultRequestHeaders.Add(HeaderNames.Cookie, "refreshToken=");
-
             var response = await _client.PostAsync("users/refresh-token", null);
-            
+
             Assert.False(response.IsSuccessStatusCode);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
-
+        
         [Fact]
         public async Task RefreshToken_Success_NewTokenIsValid()
         {
-            _client.DefaultRequestHeaders.Add("X-Forwarded-For", "ipAddress");
-            _client.DefaultRequestHeaders.Add(HeaderNames.Cookie, "refreshToken=notRevoked");
+            var loginRequest = new LoginRequest
+                { Email = "test@example.com", Password = "12345678" };
+            var loginResponse = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
+            var result = await loginResponse.Content.ReadAsAsync<AuthenticatedResponse>();
+            _client.DefaultRequestHeaders.Add("Authorization", "Bearer " + result.Token);
 
-            var response = await _client.PostAsync("users/refresh-token",null);
-            var result = await response.Content.ReadAsAsync<AuthenticatedResponse>();
-            _client.DefaultRequestHeaders.Add(HeaderNames.Cookie, "refreshToken=" + result.RefreshToken);
-            var getResponse = await _client.GetAsync($"users/4");
+            var response = await _client.PostAsync("users/refresh-token", null);
+            var refreshResult = await response.Content.ReadAsAsync<AuthenticatedResponse>();
+            _client.DefaultRequestHeaders.Clear();
+            _client.DefaultRequestHeaders.Add("Authorization","Bearer " + refreshResult.Token);
+            var getResponse = await _client.GetAsync("users");
 
             response.EnsureSuccessStatusCode();
             getResponse.EnsureSuccessStatusCode();

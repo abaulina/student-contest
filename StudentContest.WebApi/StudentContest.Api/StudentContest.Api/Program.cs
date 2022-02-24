@@ -2,11 +2,12 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using StudentContest.Api.Authorization;
+using StudentContest.Api.Auth;
 using StudentContest.Api.ExceptionMiddleware;
 using StudentContest.Api.Helpers;
 using StudentContest.Api.Models;
 using StudentContest.Api.Services;
+using StudentContest.Api.Services.RefreshTokenRepository;
 using StudentContest.Api.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,11 +30,13 @@ builder.Services.AddSingleton(authenticationConfiguration);
 builder.Services.Configure<AuthenticationConfiguration>(builder.Configuration.GetSection("AuthenticationConfiguration"));
 
 builder.Services.AddSingleton<ILogger, FileLogger>();
+builder.Services.AddSingleton<ITokenGenerator, TokenGenerator>();
 builder.Services.AddSingleton<RefreshTokenValidator>();
-builder.Services.AddSingleton<Authenticator>();
+builder.Services.AddScoped<Authenticator>();
 builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IRegisterRequestValidator, RegisterRequestValidator>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRefreshTokenRepository, DatabaseRefreshTokenRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>
 {

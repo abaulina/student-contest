@@ -3,6 +3,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using StudentContest.Api.Models;
 using StudentContest.Api.Services;
 
@@ -24,13 +25,8 @@ namespace StudentContest.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<User>> GetUser()
         {
-            var rawUserId = HttpContext.User.FindFirstValue("id");
-            if (!int.TryParse(rawUserId, out var userId))
-            {
-                return Unauthorized();
-            }
-
-            var userInfo = await _userService.GetUserInfo(userId);
+            var token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
+            var userInfo = await _userService.GetUserInfo(token);
             return Ok(userInfo);
         }
 
