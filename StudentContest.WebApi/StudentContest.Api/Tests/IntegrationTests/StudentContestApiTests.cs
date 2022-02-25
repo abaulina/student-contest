@@ -1,8 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Microsoft.Net.Http.Headers;
 using StudentContest.Api.Models;
 using StudentContest.Api.Tests.Helpers;
 using Xunit;
@@ -104,7 +102,7 @@ namespace StudentContest.Api.Tests.IntegrationTests
 
             var response = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
             var result = await response.Content.ReadAsAsync<AuthenticatedResponse>();
-            _client.DefaultRequestHeaders.Add("Authorization", "Bearer "+result.Token);
+            _client.DefaultRequestHeaders.Add("Authorization", "Bearer "+result.RefreshToken);
             var getResponse = await _client.GetAsync("users");
             var getResponseResult = await getResponse.Content.ReadAsAsync<User>();
 
@@ -159,7 +157,7 @@ namespace StudentContest.Api.Tests.IntegrationTests
             var response = await _client.PostAsync("users/refresh-token", null);
             var refreshResult = await response.Content.ReadAsAsync<AuthenticatedResponse>();
             _client.DefaultRequestHeaders.Clear();
-            _client.DefaultRequestHeaders.Add("Authorization","Bearer " + refreshResult.Token);
+            _client.DefaultRequestHeaders.Add("Authorization","Bearer " + refreshResult.RefreshToken);
             var getResponse = await _client.GetAsync("users");
 
             response.EnsureSuccessStatusCode();

@@ -6,7 +6,6 @@ namespace StudentContest.Api.Models
     {
         public int Id { get; set; }
         public string Token { get; set; }
-        [JsonIgnore]
         public string? RefreshToken { get; set; }
 
         [JsonConstructor]

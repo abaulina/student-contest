@@ -8,6 +8,7 @@ using StudentContest.Api.Helpers;
 using StudentContest.Api.Models;
 using StudentContest.Api.Services;
 using StudentContest.Api.Services.RefreshTokenRepository;
+using StudentContest.Api.Services.UserRepository;
 using StudentContest.Api.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,6 +38,7 @@ builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IRegisterRequestValidator, RegisterRequestValidator>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRefreshTokenRepository, DatabaseRefreshTokenRepository>();
+builder.Services.AddScoped<IUserRepository, DatabaseUserRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>
 {

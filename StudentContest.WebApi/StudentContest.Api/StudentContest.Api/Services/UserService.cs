@@ -1,9 +1,9 @@
 ﻿using System.Security.Authentication;
-using Microsoft.EntityFrameworkCore;
 using StudentContest.Api.Auth;
 using StudentContest.Api.Helpers;
 using StudentContest.Api.Models;
 using StudentContest.Api.Services.RefreshTokenRepository;
+using StudentContest.Api.Services.UserRepository;
 using StudentContest.Api.Validation;
 
 namespace StudentContest.Api.Services
@@ -19,26 +19,26 @@ namespace StudentContest.Api.Services
 
     public class UserService : IUserService
     {
-        private readonly AuthenticationContext _context;
+        private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IRegisterRequestValidator _registerRequestValidator;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly RefreshTokenValidator _refreshTokenValidator;
         private readonly Authenticator _authenticator;
 
-        public UserService(AuthenticationContext context, IRegisterRequestValidator registerRequestValidator, IPasswordHasher passwordHasher, RefreshTokenValidator refreshTokenValidator, IRefreshTokenRepository refreshTokenRepository, Authenticator authenticator)
+        public UserService(IRegisterRequestValidator registerRequestValidator, IPasswordHasher passwordHasher, RefreshTokenValidator refreshTokenValidator, IRefreshTokenRepository refreshTokenRepository, Authenticator authenticator, IUserRepository userRepository)
         {
-            _context = context;
             _registerRequestValidator = registerRequestValidator;
             _passwordHasher = passwordHasher;
             _refreshTokenValidator = refreshTokenValidator;
             _refreshTokenRepository = refreshTokenRepository;
             _authenticator = authenticator;
+            _userRepository = userRepository;
         }
 
         public async Task<AuthenticatedResponse> Login(LoginRequest loginRequest)
         {
-            var user = await  _context.Users.FirstOrDefaultAsync(x => x.Email == loginRequest.Email);
+            var user = await  _userRepository.GetByEmail(loginRequest.Email);
 
             if (user == null || !_passwordHasher.VerifyPassword( loginRequest.Password, user.PasswordHash))
                 throw new InvalidCredentialException("Username or password is incorrect");
@@ -68,8 +68,7 @@ namespace StudentContest.Api.Services
             var newUser = new User(registerRequest);
             newUser.PasswordHash = _passwordHasher.HashPassword(newUser.PasswordHash);
 
-            _context.Users.Add(newUser);
-            await _context.SaveChangesAsync();
+            await _userRepository.Add(newUser);
         }
 
         public async Task<AuthenticatedResponse> RefreshToken(string token)
@@ -90,9 +89,7 @@ namespace StudentContest.Api.Services
 
         private async Task<User?> GetUser(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null) throw new KeyNotFoundException("User not found");
-            return user;
+            return await _userRepository.Find(id);
         }
     }
 }

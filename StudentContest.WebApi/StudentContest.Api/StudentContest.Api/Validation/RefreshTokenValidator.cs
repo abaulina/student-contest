@@ -14,9 +14,9 @@ namespace StudentContest.Api.Validation
             _configuration = configuration;
         }
 
-        public bool Validate(string refreshToken)
+        public void Validate(string refreshToken)
         {
-            var validationParameters = new TokenValidationParameters()
+            var validationParameters = new TokenValidationParameters
             {
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration.RefreshTokenSecret)),
                 ValidIssuer = _configuration.Issuer,
@@ -30,7 +30,6 @@ namespace StudentContest.Api.Validation
             var tokenHandler = new JwtSecurityTokenHandler();
 
             tokenHandler.ValidateToken(refreshToken, validationParameters, out _);
-            return true;
         }
     }
 }
