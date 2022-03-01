@@ -6,13 +6,13 @@ namespace StudentContest.Api.Auth
     public class Authenticator
     {
         private readonly ITokenGenerator _tokenGenerator;
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
+        private readonly ITokenRepository _tokenRepository;
 
         public Authenticator(ITokenGenerator tokenGenerator,
-            IRefreshTokenRepository refreshTokenRepository)
+            ITokenRepository tokenRepository)
         {
             _tokenGenerator = tokenGenerator;
-            _refreshTokenRepository = refreshTokenRepository;
+            _tokenRepository = tokenRepository;
         }
 
         public async Task<AuthenticatedResponse> Authenticate(User user)
@@ -20,15 +20,16 @@ namespace StudentContest.Api.Auth
             var accessToken = _tokenGenerator.GenerateJwtToken(user);
             var refreshToken = _tokenGenerator.GenerateRefreshToken();
 
-            var refreshTokenDto = new RefreshToken
+            var refreshTokenDto = new UserTokenSet
             {
-                Token = refreshToken,
-                UserId = user.Id
+                RefreshToken = refreshToken,
+                UserId = user.Id,
+                AccessToken = accessToken
             };
 
-            await _refreshTokenRepository.Create(refreshTokenDto);
+            await _tokenRepository.Create(refreshTokenDto);
 
-            return new AuthenticatedResponse(user.Id, accessToken, refreshToken);
+            return new AuthenticatedResponse( accessToken, refreshToken);
         }
     }
 }

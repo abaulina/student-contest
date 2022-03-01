@@ -22,16 +22,16 @@ namespace StudentContest.Api.Services
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IRegisterRequestValidator _registerRequestValidator;
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
-        private readonly RefreshTokenValidator _refreshTokenValidator;
+        private readonly ITokenRepository _tokenRepository;
+        private readonly RefreshTokenValidator _refreshRefreshTokenValidator;
         private readonly Authenticator _authenticator;
 
-        public UserService(IRegisterRequestValidator registerRequestValidator, IPasswordHasher passwordHasher, RefreshTokenValidator refreshTokenValidator, IRefreshTokenRepository refreshTokenRepository, Authenticator authenticator, IUserRepository userRepository)
+        public UserService(IRegisterRequestValidator registerRequestValidator, IPasswordHasher passwordHasher, RefreshTokenValidator refreshRefreshTokenValidator, ITokenRepository tokenRepository, Authenticator authenticator, IUserRepository userRepository)
         {
             _registerRequestValidator = registerRequestValidator;
             _passwordHasher = passwordHasher;
-            _refreshTokenValidator = refreshTokenValidator;
-            _refreshTokenRepository = refreshTokenRepository;
+            _refreshRefreshTokenValidator = refreshRefreshTokenValidator;
+            _tokenRepository = tokenRepository;
             _authenticator = authenticator;
             _userRepository = userRepository;
         }
@@ -49,13 +49,12 @@ namespace StudentContest.Api.Services
 
         public async Task Logout(int userId)
         {
-            await _refreshTokenRepository.DeleteAll(userId);
+            await _tokenRepository.DeleteAll(userId);
         }
 
         public async Task<User?> GetUserInfo(string token)
         {
-            _refreshTokenValidator.Validate(token);
-            var refreshToken = await _refreshTokenRepository.GetByToken(token);
+            var refreshToken = await _tokenRepository.GetByAccessToken(token);
             if (refreshToken == null)
                 throw new KeyNotFoundException("Invalid refresh token");
             return await GetUser(refreshToken.UserId);
@@ -73,13 +72,13 @@ namespace StudentContest.Api.Services
 
         public async Task<AuthenticatedResponse> RefreshToken(string token)
         {
-            _refreshTokenValidator.Validate(token);
-            var refreshToken = await _refreshTokenRepository.GetByToken(token);
+            _refreshRefreshTokenValidator.Validate(token);
+            var refreshToken = await _tokenRepository.GetByRefreshToken(token);
             
             if (refreshToken==null)
                 throw new KeyNotFoundException("Invalid refresh token");
 
-            await _refreshTokenRepository.Delete(refreshToken.Id);
+            await _tokenRepository.Delete(refreshToken.Id);
 
             var user = await GetUser(refreshToken.UserId);
             

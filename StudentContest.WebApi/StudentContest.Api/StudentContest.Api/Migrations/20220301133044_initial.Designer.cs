@@ -10,31 +10,13 @@ using StudentContest.Api.Models;
 namespace StudentContest.Api.Migrations
 {
     [DbContext(typeof(AuthenticationContext))]
-    [Migration("20220225135238_initial")]
+    [Migration("20220301133044_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.1");
-
-            modelBuilder.Entity("StudentContest.Api.Models.RefreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RefreshTokens");
-                });
 
             modelBuilder.Entity("StudentContest.Api.Models.User", b =>
                 {
@@ -61,6 +43,28 @@ namespace StudentContest.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("StudentContest.Api.Models.UserTokenSet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AccessToken")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tokens");
                 });
 #pragma warning restore 612, 618
         }

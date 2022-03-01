@@ -1,4 +1,6 @@
 using System.Text;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,8 +30,6 @@ var authenticationConfiguration = new AuthenticationConfiguration();
 builder.Configuration.Bind("Authentication", authenticationConfiguration);
 builder.Services.AddSingleton(authenticationConfiguration);
 
-builder.Services.Configure<AuthenticationConfiguration>(builder.Configuration.GetSection("AuthenticationConfiguration"));
-
 builder.Services.AddSingleton<ILogger, FileLogger>();
 builder.Services.AddSingleton<ITokenGenerator, TokenGenerator>();
 builder.Services.AddSingleton<RefreshTokenValidator>();
@@ -37,14 +37,14 @@ builder.Services.AddScoped<Authenticator>();
 builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IRegisterRequestValidator, RegisterRequestValidator>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IRefreshTokenRepository, DatabaseRefreshTokenRepository>();
+builder.Services.AddScoped<ITokenRepository, DatabaseTokenRepository>();
 builder.Services.AddScoped<IUserRepository, DatabaseUserRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>
 {
-    o.TokenValidationParameters = new TokenValidationParameters()
+    o.TokenValidationParameters = new TokenValidationParameters
     {
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(authenticationConfiguration.AccessTokenSecret)),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationConfiguration.AccessTokenSecret)),
         ValidIssuer = authenticationConfiguration.Issuer,
         ValidAudience = authenticationConfiguration.Audience,
         ValidateIssuerSigningKey = true,

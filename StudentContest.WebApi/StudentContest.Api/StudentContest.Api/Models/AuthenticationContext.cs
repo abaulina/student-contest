@@ -10,6 +10,6 @@ namespace StudentContest.Api.Models
         }
 
         public DbSet<User> Users { get; set; } = null!;
-        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+        public DbSet<UserTokenSet> Tokens { get; set; } = null!;
     }
 }

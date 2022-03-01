@@ -93,7 +93,7 @@ namespace StudentContest.Api.Tests.UnitTests
             var httpContext = new DefaultHttpContext();
             var user = new User
                 { Email = "test@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678" };
-            _userServiceFake.Setup(x => x.Login(It.IsAny<LoginRequest>())).ReturnsAsync(new AuthenticatedResponse(user.Id, "token", "refreshToken"));
+            _userServiceFake.Setup(x => x.Login(It.IsAny<LoginRequest>())).ReturnsAsync(new AuthenticatedResponse( "token", "refreshToken"));
             var loginRequest = new LoginRequest { Email = "test@example.com", Password = "12345678" };
             var controller = new UsersController(_userServiceFake.Object)
             {
@@ -107,7 +107,6 @@ namespace StudentContest.Api.Tests.UnitTests
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnValue = Assert.IsType<AuthenticatedResponse>(okResult.Value);
-            Assert.Equal(user.Id,returnValue.Id);
             Assert.Equal("token",returnValue.Token);
             Assert.Equal("refreshToken", returnValue.RefreshToken);
         }
@@ -123,9 +122,6 @@ namespace StudentContest.Api.Tests.UnitTests
                 }
             };
 
-            var user = new User
-                { Email = "test@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678" };
-            _userServiceFake.Setup(x => x.RefreshToken(It.IsAny<string>())).ReturnsAsync(new AuthenticatedResponse(user.Id, "token", "refreshToken"));
             var controller = new UsersController(_userServiceFake.Object)
             {
                 ControllerContext = new ControllerContext
@@ -138,7 +134,6 @@ namespace StudentContest.Api.Tests.UnitTests
 
             var okResult = Assert.IsType<OkObjectResult>(result);
             var returnValue = Assert.IsType<AuthenticatedResponse>(okResult.Value);
-            Assert.Equal(user.Id, returnValue.Id);
             Assert.Equal("token", returnValue.Token);
             Assert.Equal("refreshToken", returnValue.RefreshToken);
         }

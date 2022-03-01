@@ -51,7 +51,7 @@ namespace StudentContest.Api.Auth
         private string GenerateToken(string secretKey, string issuer, string audience, DateTime utcExpirationTime,
             IEnumerable<Claim>? claims = null)
         {
-            SecurityKey key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
+            SecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(

@@ -64,7 +64,6 @@ namespace StudentContest.Api.Controllers
         {
             var refreshToken = Request.Cookies["refreshToken"];
             var response = await _userService.RefreshToken(refreshToken);
-            SetTokenCookie(response.RefreshToken);
             return Ok(response);
         }
 

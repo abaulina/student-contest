@@ -18,7 +18,7 @@ namespace StudentContest.Api.Validation
         {
             var validationParameters = new TokenValidationParameters
             {
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration.RefreshTokenSecret)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.RefreshTokenSecret)),
                 ValidIssuer = _configuration.Issuer,
                 ValidAudience = _configuration.Audience,
                 ValidateIssuerSigningKey = true,

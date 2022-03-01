@@ -12,7 +12,7 @@ namespace StudentContest.Api.Tests.Helpers
         public static void InitializeDbForTests(AuthenticationContext db)
         {
             db.Users.AddRange(Seed());
-            db.RefreshTokens.AddRange(SeedRefreshTokens());
+            db.Tokens.AddRange(SeedRefreshTokens());
             db.SaveChanges();
         }
 
@@ -43,14 +43,14 @@ namespace StudentContest.Api.Tests.Helpers
             return users;
         }
 
-        private static IEnumerable<RefreshToken> SeedRefreshTokens()
+        private static IEnumerable<UserTokenSet> SeedRefreshTokens()
         {
-            var refreshTokens = new List<RefreshToken>
+            var refreshTokens = new List<UserTokenSet>
             {
-                new() {UserId = 3, Token = "3token"},
+                new() {UserId = 3, RefreshToken = "3token", AccessToken = "some"},
                 new()
                 {
-                    UserId = 4, Token = "notRevoked"
+                    UserId = 4, RefreshToken = "notRevoked", AccessToken = "token"
                 }
             };
             return refreshTokens;
