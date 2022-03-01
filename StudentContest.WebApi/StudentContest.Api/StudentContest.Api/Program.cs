@@ -1,6 +1,4 @@
 using System.Text;
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,7 +35,7 @@ builder.Services.AddScoped<Authenticator>();
 builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IRegisterRequestValidator, RegisterRequestValidator>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ITokenRepository, DatabaseTokenRepository>();
+builder.Services.AddScoped<IRefreshTokenRepository, DatabaseRefreshTokenRepository>();
 builder.Services.AddScoped<IUserRepository, DatabaseUserRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace StudentContest.Api.Tests.UnitTests
         [Fact]
         public async Task Login_InvalidEmail_ThrowsException()
         {
-            var refreshTokenRepoMock = new Mock<ITokenRepository>().Object;
+            var refreshTokenRepoMock = new Mock<IRefreshTokenRepository>().Object;
             var userService = new UserService(new Mock<IRegisterRequestValidator>().Object,
                 new Mock<IPasswordHasher>().Object,
                 new Mock<RefreshTokenValidator>(new Mock<AuthenticationConfiguration>().Object).Object,
@@ -46,7 +47,7 @@ namespace StudentContest.Api.Tests.UnitTests
             var bCryptFake = new Mock<IPasswordHasher>();
             bCryptFake.Setup(x => x.VerifyPassword(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns((string password, string hash) => password == hash);
-            var refreshTokenRepoMock = new Mock<ITokenRepository>().Object;
+            var refreshTokenRepoMock = new Mock<IRefreshTokenRepository>().Object;
             var userService = new UserService(new Mock<IRegisterRequestValidator>().Object,
                 bCryptFake.Object,
                 new Mock<RefreshTokenValidator>(new Mock<AuthenticationConfiguration>().Object).Object,
@@ -61,10 +62,10 @@ namespace StudentContest.Api.Tests.UnitTests
         [Fact]
         public async Task Login_Success_AddRefreshToken()
         {
-            var refreshTokenRepoFake = new Mock<ITokenRepository>();
-            refreshTokenRepoFake.Setup(x => x.Create(It.IsAny<UserTokenSet>())).Callback((UserTokenSet _) =>
+            var refreshTokenRepoFake = new Mock<IRefreshTokenRepository>();
+            refreshTokenRepoFake.Setup(x => x.Create(It.IsAny<RefreshToken>())).Callback((RefreshToken _) =>
             {
-                _context.Tokens.Add(new UserTokenSet {Id = -1, RefreshToken = "refreshToken", UserId = 1, AccessToken = "accessToken"});
+                _context.RefreshTokens.Add(new RefreshToken {Id = -1, Token = "refreshToken", UserId = 1});
                 _context.SaveChanges();
             });
             var tokenGeneratorFake = new Mock<ITokenGenerator>();
@@ -75,58 +76,66 @@ namespace StudentContest.Api.Tests.UnitTests
                 refreshTokenRepoFake.Object, new Authenticator(tokenGeneratorFake.Object, refreshTokenRepoFake.Object),
                 _userRepository);
             var loginRequest = new LoginRequest {Email = "test@example.com", Password = "12345678"};
-            var count = _context.Tokens.Count();
+            var count = _context.RefreshTokens.Count();
 
             var result = await userService.Login(loginRequest);
 
             Assert.IsType<AuthenticatedResponse>(result);
             Assert.Equal("refreshToken", result.RefreshToken);
             Assert.Equal("token", result.Token);
-            Assert.Equal(count + 1, _context.Tokens.Count());
-            Assert.Equal("refreshToken", _context.Tokens.FirstOrDefault(x => x.UserId == 1)!.RefreshToken);
-            Assert.Equal("accessToken", _context.Tokens.FirstOrDefault(x => x.UserId == 1)!.AccessToken);
+            Assert.Equal(count + 1, _context.RefreshTokens.Count());
+            Assert.Equal("refreshToken", _context.RefreshTokens.FirstOrDefault(x => x.UserId == 1)!.Token);
         }
 
         [Fact]
         public async Task Logout_Success_ChangesDatabase()
         {
-            var refreshTokenRepoFake = new Mock<ITokenRepository>();
+            var refreshTokenRepoFake = new Mock<IRefreshTokenRepository>();
             refreshTokenRepoFake.Setup(x => x.DeleteAll(It.IsAny<int>())).Callback((int id) =>
             {
-                var tkn = _context.Tokens.FirstOrDefault(x => x.UserId == id);
-                _context.Tokens.Remove(tkn);
+                var tkn = _context.RefreshTokens.FirstOrDefault(x => x.UserId == id);
+                _context.RefreshTokens.Remove(tkn);
                 _context.SaveChanges();
             });
             var userService = new UserService(new Mock<IRegisterRequestValidator>().Object,
                 new Mock<IPasswordHasher>().Object,
                 new Mock<RefreshTokenValidator>(new AuthenticationConfiguration()).Object,
                 refreshTokenRepoFake.Object,
-                new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<ITokenRepository>().Object)
+                new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<IRefreshTokenRepository>().Object)
                     .Object, _userRepository);
-            var count = _context.Tokens.Count();
+            var count = _context.RefreshTokens.Count();
 
             await userService.Logout(3);
 
-            Assert.Equal(count - 1, _context.Tokens.Count());
-            Assert.Null(_context.Tokens.FirstOrDefault(x => x.UserId == 3));
+            Assert.Equal(count - 1, _context.RefreshTokens.Count());
+            Assert.Null(_context.RefreshTokens.FirstOrDefault(x => x.UserId == 3));
         }
 
         [Fact]
         public async Task GetUserInfo_NonExistingUser_ThrowsException()
         {
-            var configuration = new AuthenticationConfiguration
-            {
-                RefreshTokenSecret = "strong-secret-test-key", Issuer = "some-issuer", Audience = "some-audience",
-                RefreshTokenExpirationDays = 1
-            };
-            var token = new TokenGenerator(configuration).GenerateRefreshToken();
             var userService = new UserService(new Mock<IRegisterRequestValidator>().Object,
-                new Mock<IPasswordHasher>().Object, new RefreshTokenValidator(configuration),
-                new Mock<ITokenRepository>().Object,
-                new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<ITokenRepository>().Object)
+                new Mock<IPasswordHasher>().Object, new RefreshTokenValidator(new AuthenticationConfiguration()),
+                new Mock<IRefreshTokenRepository>().Object,
+                new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<IRefreshTokenRepository>().Object)
                     .Object, _userRepository);
 
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => userService.GetUserInfo(token));
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => userService.GetUserInfo(-1));
+        }
+
+        [Fact]
+        public async Task GetUserInfo_Success_CorrectData()
+        {
+            var userService = new UserService(new Mock<IRegisterRequestValidator>().Object,
+                new Mock<IPasswordHasher>().Object, new RefreshTokenValidator(new AuthenticationConfiguration()),
+                new Mock<IRefreshTokenRepository>().Object,
+                new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<IRefreshTokenRepository>().Object)
+                    .Object, _userRepository);
+
+            var result = await userService.GetUserInfo(1);
+
+            Assert.Equal(1,result.Id);
+            Assert.Equal("test@example.com",result.Email);
         }
 
         [Fact]
@@ -134,8 +143,8 @@ namespace StudentContest.Api.Tests.UnitTests
         {
             var userService = new UserService(new Mock<IRegisterRequestValidator>().Object,
                 new BCryptPasswordHasher(), new Mock<RefreshTokenValidator>(new AuthenticationConfiguration()).Object,
-                new Mock<ITokenRepository>().Object,
-                new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<ITokenRepository>().Object)
+                new Mock<IRefreshTokenRepository>().Object,
+                new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<IRefreshTokenRepository>().Object)
                     .Object, _userRepository);
             var registerRequest = new RegisterRequest
             {
@@ -150,6 +159,25 @@ namespace StudentContest.Api.Tests.UnitTests
 
             Assert.Equal(count + 1, _context.Users.Count());
             Assert.Equal("newUser@example.com", _context.Users.Last().Email);
+        }
+
+        [Fact]
+        public async Task Register_AlreadyExistingData_ThrowsException()
+        {
+            var userService = new UserService(new RegisterRequestValidator(_context),
+                new BCryptPasswordHasher(), new Mock<RefreshTokenValidator>(new AuthenticationConfiguration()).Object,
+                new Mock<IRefreshTokenRepository>().Object,
+                new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<IRefreshTokenRepository>().Object)
+                    .Object, _userRepository);
+            var registerRequest = new RegisterRequest
+            {
+                Email = "test@example.com",
+                FirstName = "New",
+                LastName = "User",
+                Password = "12345678"
+            };
+
+            await Assert.ThrowsAsync<ArgumentException>(() => userService.Register(registerRequest));
         }
     }
 }

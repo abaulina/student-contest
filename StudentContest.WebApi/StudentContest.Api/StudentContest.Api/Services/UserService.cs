@@ -12,7 +12,7 @@ namespace StudentContest.Api.Services
     {
         Task<AuthenticatedResponse> Login(LoginRequest loginRequest);
         Task Logout(int userId);
-        Task<User?> GetUserInfo(string token);
+        Task<User?> GetUserInfo(int userId);
         Task Register(RegisterRequest registerRequest);
         Task<AuthenticatedResponse> RefreshToken (string refreshToken);
     }
@@ -22,16 +22,16 @@ namespace StudentContest.Api.Services
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
         private readonly IRegisterRequestValidator _registerRequestValidator;
-        private readonly ITokenRepository _tokenRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly RefreshTokenValidator _refreshRefreshTokenValidator;
         private readonly Authenticator _authenticator;
 
-        public UserService(IRegisterRequestValidator registerRequestValidator, IPasswordHasher passwordHasher, RefreshTokenValidator refreshRefreshTokenValidator, ITokenRepository tokenRepository, Authenticator authenticator, IUserRepository userRepository)
+        public UserService(IRegisterRequestValidator registerRequestValidator, IPasswordHasher passwordHasher, RefreshTokenValidator refreshRefreshTokenValidator, IRefreshTokenRepository refreshTokenRepository, Authenticator authenticator, IUserRepository userRepository)
         {
             _registerRequestValidator = registerRequestValidator;
             _passwordHasher = passwordHasher;
             _refreshRefreshTokenValidator = refreshRefreshTokenValidator;
-            _tokenRepository = tokenRepository;
+            _refreshTokenRepository = refreshTokenRepository;
             _authenticator = authenticator;
             _userRepository = userRepository;
         }
@@ -49,15 +49,12 @@ namespace StudentContest.Api.Services
 
         public async Task Logout(int userId)
         {
-            await _tokenRepository.DeleteAll(userId);
+            await _refreshTokenRepository.DeleteAll(userId);
         }
 
-        public async Task<User?> GetUserInfo(string token)
+        public async Task<User?> GetUserInfo(int userId)
         {
-            var refreshToken = await _tokenRepository.GetByAccessToken(token);
-            if (refreshToken == null)
-                throw new KeyNotFoundException("Invalid refresh token");
-            return await GetUser(refreshToken.UserId);
+            return await GetUser(userId);
         }
 
         public async Task Register(RegisterRequest registerRequest)
@@ -73,12 +70,12 @@ namespace StudentContest.Api.Services
         public async Task<AuthenticatedResponse> RefreshToken(string token)
         {
             _refreshRefreshTokenValidator.Validate(token);
-            var refreshToken = await _tokenRepository.GetByRefreshToken(token);
+            var refreshToken = await _refreshTokenRepository.GetByRefreshToken(token);
             
             if (refreshToken==null)
                 throw new KeyNotFoundException("Invalid refresh token");
 
-            await _tokenRepository.Delete(refreshToken.Id);
+            await _refreshTokenRepository.Delete(refreshToken.Id);
 
             var user = await GetUser(refreshToken.UserId);
             

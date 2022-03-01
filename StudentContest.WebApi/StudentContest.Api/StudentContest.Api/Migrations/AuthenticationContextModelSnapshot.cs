@@ -62,7 +62,7 @@ namespace StudentContest.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Tokens");
+                    b.ToTable("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

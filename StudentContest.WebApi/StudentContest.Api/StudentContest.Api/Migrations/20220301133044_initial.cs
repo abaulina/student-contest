@@ -9,7 +9,7 @@ namespace StudentContest.Api.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Tokens",
+                name: "RefreshTokens",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
@@ -43,7 +43,7 @@ namespace StudentContest.Api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Tokens");
+                name: "RefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "Users");

@@ -1,10 +1,9 @@
 ﻿namespace StudentContest.Api.Models
 {
-    public class UserTokenSet
+    public class RefreshToken
     {
         public int Id { get; set; }
-        public string AccessToken { get; set; }
+        public string Token { get; set; }
         public int UserId { get; set; }
-        public string RefreshToken { get; set; }
     }
 }

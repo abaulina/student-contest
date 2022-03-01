@@ -3,34 +3,29 @@ using StudentContest.Api.Models;
 
 namespace StudentContest.Api.Services.RefreshTokenRepository
 {
-    public class DatabaseTokenRepository : ITokenRepository
+    public class DatabaseRefreshTokenRepository : IRefreshTokenRepository
     {
         private readonly AuthenticationContext _authenticationContext;
 
-        public DatabaseTokenRepository(AuthenticationContext authenticationContext)
+        public DatabaseRefreshTokenRepository(AuthenticationContext authenticationContext)
         {
             _authenticationContext = authenticationContext;
         }
-
-        public async Task<UserTokenSet?> GetByAccessToken(string token)
+        
+        public async Task<RefreshToken?> GetByRefreshToken(string token)
         {
-            return await _authenticationContext.Tokens.FirstOrDefaultAsync(x => x.AccessToken == token);
+            return await _authenticationContext.RefreshTokens.FirstOrDefaultAsync(x => x.Token == token);
         }
 
-        public async Task<UserTokenSet?> GetByRefreshToken(string token)
+        public async Task Create(RefreshToken userTokenSet)
         {
-            return await _authenticationContext.Tokens.FirstOrDefaultAsync(x => x.RefreshToken == token);
-        }
-
-        public async Task Create(UserTokenSet userTokenSet)
-        {
-            _authenticationContext.Tokens.Add(userTokenSet);
+            _authenticationContext.RefreshTokens.Add(userTokenSet);
             await _authenticationContext.SaveChangesAsync();
         }
 
         public async Task Delete(int id)
         {
-            var token = await _authenticationContext.Tokens.FindAsync(id);
+            var token = await _authenticationContext.RefreshTokens.FindAsync(id);
             if (token != null)
             {
                 _authenticationContext.Remove(token);
@@ -40,11 +35,11 @@ namespace StudentContest.Api.Services.RefreshTokenRepository
 
         public async Task DeleteAll(int userId)
         {
-           var refreshTokens = await _authenticationContext.Tokens
+           var refreshTokens = await _authenticationContext.RefreshTokens
                 .Where(t => t.UserId == userId)
                 .ToListAsync();
 
-            _authenticationContext.Tokens.RemoveRange(refreshTokens);
+            _authenticationContext.RefreshTokens.RemoveRange(refreshTokens);
             await _authenticationContext.SaveChangesAsync();
         }
     }
