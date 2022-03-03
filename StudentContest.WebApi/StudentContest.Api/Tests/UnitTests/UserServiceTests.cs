@@ -88,30 +88,6 @@ namespace StudentContest.Api.Tests.UnitTests
         }
 
         [Fact]
-        public async Task Logout_Success_ChangesDatabase()
-        {
-            var refreshTokenRepoFake = new Mock<IRefreshTokenRepository>();
-            refreshTokenRepoFake.Setup(x => x.DeleteAll(It.IsAny<int>())).Callback((int id) =>
-            {
-                var tkn = _context.RefreshTokens.FirstOrDefault(x => x.UserId == id);
-                _context.RefreshTokens.Remove(tkn);
-                _context.SaveChanges();
-            });
-            var userService = new UserService(new Mock<IRegisterRequestValidator>().Object,
-                new Mock<IPasswordHasher>().Object,
-                new Mock<RefreshTokenValidator>(new AuthenticationConfiguration()).Object,
-                refreshTokenRepoFake.Object,
-                new Mock<Authenticator>(new Mock<ITokenGenerator>().Object, new Mock<IRefreshTokenRepository>().Object)
-                    .Object, _userRepository);
-            var count = _context.RefreshTokens.Count();
-
-            await userService.Logout(3);
-
-            Assert.Equal(count - 1, _context.RefreshTokens.Count());
-            Assert.Null(_context.RefreshTokens.FirstOrDefault(x => x.UserId == 3));
-        }
-
-        [Fact]
         public async Task GetUserInfo_NonExistingUser_ThrowsException()
         {
             var userService = new UserService(new Mock<IRegisterRequestValidator>().Object,

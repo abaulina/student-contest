@@ -5,6 +5,7 @@ namespace StudentContest.Api.Models
     public class AuthenticatedResponse
     { 
         public string Token { get; set; }
+        [JsonIgnore]
         public string? RefreshToken { get; set; }
 
         [JsonConstructor]

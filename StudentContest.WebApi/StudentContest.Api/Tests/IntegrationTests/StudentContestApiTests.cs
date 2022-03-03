@@ -112,12 +112,12 @@ namespace StudentContest.Api.Tests.IntegrationTests
         }
 
         [Fact]
-        public async Task Logout_InvalidToken_ReturnsUnauthorized()
+        public async Task Logout_NoTokenInCookies_ReturnsBadRequest()
         {
             var response = await _client.DeleteAsync("users/logout");
 
             Assert.False(response.IsSuccessStatusCode);
-            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
@@ -126,14 +126,14 @@ namespace StudentContest.Api.Tests.IntegrationTests
             var loginRequest = new LoginRequest
                 { Email = "test@example.com", Password = "12345678" };
             var loginResponse = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
-            var result = await loginResponse.Content.ReadAsAsync<AuthenticatedResponse>();
-            _client.DefaultRequestHeaders.Add("Authorization", "Bearer " + result.Token);
+            var loginResult = await loginResponse.Content.ReadAsAsync<AuthenticatedResponse>();
+            _client.DefaultRequestHeaders.Add("Cookie", loginResult.RefreshToken);
 
             var logoutResponse = await _client.DeleteAsync("users/logout");
-            var getResponse = await _client.GetAsync("users");
+            var refreshResponse = await _client.PostAsync("users/refresh-token", null);
 
             logoutResponse.EnsureSuccessStatusCode();
-            Assert.False(getResponse.IsSuccessStatusCode);
+            Assert.False(refreshResponse.IsSuccessStatusCode);
         }
 
         [Fact]

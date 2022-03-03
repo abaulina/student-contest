@@ -41,17 +41,11 @@ namespace StudentContest.Api.Controllers
             return Ok();
         }
 
-        [Authorize]
         [HttpDelete("logout")]
         public async Task<IActionResult> Logout()
         {
-            var rawUserId = HttpContext.User.FindFirstValue("id");
-            if (!int.TryParse(rawUserId, out var userId))
-            {
-                return Unauthorized();
-            }
-
-            await _userService.Logout(userId);
+            var refreshToken = Request.Cookies["refreshToken"];
+            await _userService.Logout(refreshToken);
             return Ok();
         }
 
@@ -68,6 +62,7 @@ namespace StudentContest.Api.Controllers
         {
             var refreshToken = Request.Cookies["refreshToken"];
             var response = await _userService.RefreshToken(refreshToken);
+            SetTokenCookie(response.RefreshToken);
             return Ok(response);
         }
 

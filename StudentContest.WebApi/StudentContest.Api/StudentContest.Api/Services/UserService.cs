@@ -11,7 +11,7 @@ namespace StudentContest.Api.Services
     public interface IUserService
     {
         Task<AuthenticatedResponse> Login(LoginRequest loginRequest);
-        Task Logout(int userId);
+        Task Logout(string refreshToken);
         Task<User?> GetUserInfo(int userId);
         Task Register(RegisterRequest registerRequest);
         Task<AuthenticatedResponse> RefreshToken (string refreshToken);
@@ -47,9 +47,11 @@ namespace StudentContest.Api.Services
             return response;
         }
 
-        public async Task Logout(int userId)
+        public async Task Logout(string token)
         {
-            await _refreshTokenRepository.DeleteAll(userId);
+            var refreshToken = await GetValidRefreshToken(token);
+
+            await _refreshTokenRepository.DeleteAll(refreshToken.UserId);
         }
 
         public async Task<User?> GetUserInfo(int userId)
@@ -69,11 +71,7 @@ namespace StudentContest.Api.Services
 
         public async Task<AuthenticatedResponse> RefreshToken(string token)
         {
-            _refreshRefreshTokenValidator.Validate(token);
-            var refreshToken = await _refreshTokenRepository.GetByRefreshToken(token);
-            
-            if (refreshToken==null)
-                throw new KeyNotFoundException("Invalid refresh token");
+            var refreshToken = await GetValidRefreshToken(token);
 
             await _refreshTokenRepository.Delete(refreshToken.Id);
 
@@ -86,6 +84,16 @@ namespace StudentContest.Api.Services
         private async Task<User?> GetUser(int id)
         {
             return await _userRepository.Find(id);
+        }
+
+        private async Task<RefreshToken> GetValidRefreshToken(string inputToken)
+        {
+            _refreshRefreshTokenValidator.Validate(inputToken);
+            var refreshToken = await _refreshTokenRepository.GetByRefreshToken(inputToken);
+
+            if (refreshToken == null)
+                throw new KeyNotFoundException("Invalid refresh token");
+            return refreshToken;
         }
     }
 }

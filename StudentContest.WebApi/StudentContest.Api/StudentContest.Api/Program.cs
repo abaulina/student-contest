@@ -68,13 +68,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseRouting(); //?
-
 app.UseCors("ApiCorsPolicy");
 
 app.UseAuthentication();
 
-app.UseAuthorization(); //?
+app.UseAuthorization(); 
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
