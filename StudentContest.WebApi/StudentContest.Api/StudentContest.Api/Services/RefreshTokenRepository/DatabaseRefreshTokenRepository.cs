@@ -33,7 +33,7 @@ namespace StudentContest.Api.Services.RefreshTokenRepository
             }
         }
 
-        public async Task DeleteAll(int userId)
+        public async Task DeleteAll(string userId)
         {
            var refreshTokens = await _authenticationContext.RefreshTokens
                 .Where(t => t.UserId == userId)

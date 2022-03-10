@@ -1,9 +1,10 @@
 ﻿using System.Security.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using StudentContest.Api.Auth;
-using StudentContest.Api.Helpers;
+using StudentContest.Api.ExceptionMiddleware;
 using StudentContest.Api.Models;
 using StudentContest.Api.Services.RefreshTokenRepository;
-using StudentContest.Api.Services.UserRepository;
 using StudentContest.Api.Validation;
 
 namespace StudentContest.Api.Services
@@ -12,36 +13,35 @@ namespace StudentContest.Api.Services
     {
         Task<AuthenticatedResponse> Login(LoginRequest loginRequest);
         Task Logout(string refreshToken);
-        Task<User?> GetUserInfo(int userId);
+        Task<User?> GetUserInfo(string userId);
         Task Register(RegisterRequest registerRequest);
         Task<AuthenticatedResponse> RefreshToken (string refreshToken);
     }
 
     public class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
-        private readonly IPasswordHasher _passwordHasher;
-        private readonly IRegisterRequestValidator _registerRequestValidator;
+        private readonly UserManager<User> _userManager;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly RefreshTokenValidator _refreshRefreshTokenValidator;
+        private readonly IRegisterRequestValidator _registerRequestValidator;
         private readonly Authenticator _authenticator;
 
-        public UserService(IRegisterRequestValidator registerRequestValidator, IPasswordHasher passwordHasher, RefreshTokenValidator refreshRefreshTokenValidator, IRefreshTokenRepository refreshTokenRepository, Authenticator authenticator, IUserRepository userRepository)
+        public UserService(RefreshTokenValidator refreshRefreshTokenValidator, IRefreshTokenRepository refreshTokenRepository, Authenticator authenticator, UserManager<User> userManager, IRegisterRequestValidator registerRequestValidator)
         {
-            _registerRequestValidator = registerRequestValidator;
-            _passwordHasher = passwordHasher;
             _refreshRefreshTokenValidator = refreshRefreshTokenValidator;
             _refreshTokenRepository = refreshTokenRepository;
             _authenticator = authenticator;
-            _userRepository = userRepository;
+            _userManager = userManager;
+            _registerRequestValidator = registerRequestValidator;
         }
 
         public async Task<AuthenticatedResponse> Login(LoginRequest loginRequest)
         {
-            var user = await  _userRepository.GetByEmail(loginRequest.Email);
+            var user = await  _userManager.FindByEmailAsync(loginRequest.Email);
 
-            if (user == null || !_passwordHasher.VerifyPassword( loginRequest.Password, user.PasswordHash))
-                throw new InvalidCredentialException("Username or password is incorrect");
+            var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, loginRequest.Password);
+            if (user == null || !isPasswordCorrect)
+                throw new InvalidCredentialException("Email or password is incorrect");
             
             var response = await _authenticator.Authenticate(user);
             return response;
@@ -54,19 +54,30 @@ namespace StudentContest.Api.Services
             await _refreshTokenRepository.DeleteAll(refreshToken.UserId);
         }
 
-        public async Task<User?> GetUserInfo(int userId)
+        public async Task<User?> GetUserInfo(string userId)
         {
             return await GetUser(userId);
         }
 
         public async Task Register(RegisterRequest registerRequest)
         {
-            _registerRequestValidator.ValidateRequestData(registerRequest);
+            _registerRequestValidator.ValidateUserPersonalData(registerRequest);
+            var newUser = new User {Email = registerRequest.Email, FirstName = registerRequest.FirstName, LastName = registerRequest.LastName, UserName  = registerRequest.Email};
+            var result = await _userManager.CreateAsync(newUser, registerRequest.Password);
 
-            var newUser = new User(registerRequest);
-            newUser.PasswordHash = _passwordHasher.HashPassword(newUser.PasswordHash);
+            if (!result.Succeeded)
+            {
+                var primaryError = result.Errors.FirstOrDefault();
+                switch (primaryError?.Code)
+                {
+                    case nameof(IdentityErrorDescriber.DuplicateEmail):case  nameof(IdentityErrorDescriber.InvalidEmail) :
+                        throw new ApiException("Email is invalid");
+                    case nameof(IdentityErrorDescriber.PasswordTooShort):
+                        throw new ApiException("Password is invalid. It must be at least 8 characters");
+                }
 
-            await _userRepository.Add(newUser);
+                throw new DbUpdateException();
+            }
         }
 
         public async Task<AuthenticatedResponse> RefreshToken(string token)
@@ -81,9 +92,15 @@ namespace StudentContest.Api.Services
             return response;
         }
 
-        private async Task<User?> GetUser(int id)
+        private async Task<User?> GetUser(string id)
         {
-            return await _userRepository.Find(id);
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+                throw new KeyNotFoundException();
+            return new User
+            {
+                Email = user.Email, FirstName = user.FirstName, LastName = user.LastName, Id = user.Id
+            };
         }
 
         private async Task<RefreshToken> GetValidRefreshToken(string inputToken)

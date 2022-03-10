@@ -11,7 +11,7 @@ namespace StudentContest.Api.Tests.UnitTests
 
         public RegisterRequestValidatorTests()
         {
-            _registerRequestValidator = new RegisterRequestValidator(new DatabaseFake().GetContext());
+            _registerRequestValidator = new RegisterRequestValidator();
         }
 
         [Theory]
@@ -44,27 +44,6 @@ namespace StudentContest.Api.Tests.UnitTests
 
         [Theory]
         [InlineData("")]
-        [InlineData("1")]
-        [InlineData(".123456")]
-        [InlineData("//////")]
-        [InlineData("1234567")]
-        public void ValidatePassword_LengthLessThan8_ThrowsException(string password)
-        {
-            Assert.Throws<ArgumentException>(() => _registerRequestValidator.ValidatePassword(password));
-        }
-
-        [Theory]
-        [InlineData("test@example.com")]
-        [InlineData("user@example.com")]
-        [InlineData("first@example.com")]
-        [InlineData("second@example.com")]
-        public void ValidateEmail_AlreadyBeingUsed_ThrowsException(string email)
-        {
-            Assert.Throws<ArgumentException>(() => _registerRequestValidator.ValidateEmail(email));
-        }
-
-        [Theory]
-        [InlineData("")]
         [InlineData("user@example.c")]
         [InlineData("userexample.com")]
         [InlineData(".user@example.com")]
@@ -86,7 +65,7 @@ namespace StudentContest.Api.Tests.UnitTests
                 Password = "12345678"
             };
 
-            _registerRequestValidator.ValidateRequestData(registerRequest);
+            _registerRequestValidator.ValidateUserPersonalData(registerRequest);
         }
     }
 }

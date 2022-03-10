@@ -4,11 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StudentContest.Api.Auth;
 using StudentContest.Api.ExceptionMiddleware;
-using StudentContest.Api.Helpers;
 using StudentContest.Api.Models;
 using StudentContest.Api.Services;
 using StudentContest.Api.Services.RefreshTokenRepository;
-using StudentContest.Api.Services.UserRepository;
 using StudentContest.Api.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +20,16 @@ builder.Services.AddCors(options => options.AddPolicy("ApiCorsPolicy", corsPolic
         .AllowAnyHeader();
 }));
 builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddIdentityCore<User>(u =>
+    {
+        u.Password.RequiredLength = 8;
+        u.Password.RequireDigit = false;
+        u.Password.RequireUppercase = false;
+        u.User.RequireUniqueEmail = true;
+        u.Password.RequireNonAlphanumeric = false;
+        u.Password.RequireLowercase = false;
+    }
+).AddEntityFrameworkStores<AuthenticationContext>();
 
 
 var authenticationConfiguration = new AuthenticationConfiguration();
@@ -32,11 +40,10 @@ builder.Services.AddSingleton<ILogger, FileLogger>();
 builder.Services.AddSingleton<ITokenGenerator, TokenGenerator>();
 builder.Services.AddSingleton<RefreshTokenValidator>();
 builder.Services.AddScoped<Authenticator>();
-builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IRegisterRequestValidator, RegisterRequestValidator>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRefreshTokenRepository, DatabaseRefreshTokenRepository>();
-builder.Services.AddScoped<IUserRepository, DatabaseUserRepository>();
+
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>
 {

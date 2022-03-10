@@ -2,7 +2,6 @@
 using System.Net.Http;
 using System.Text;
 using Newtonsoft.Json;
-using StudentContest.Api.Helpers;
 using StudentContest.Api.Models;
 
 namespace StudentContest.Api.Tests.Helpers
@@ -21,23 +20,22 @@ namespace StudentContest.Api.Tests.Helpers
         
         private static IEnumerable<User> Seed()
         {
-            var passwordHasher = new BCryptPasswordHasher();
             var users = new User[] {
                 new()
                 {
-                    Email = "test@example.com", FirstName = "Test", LastName = "User", PasswordHash = passwordHasher.HashPassword("12345678")
+                    Id = "1", Email = "test@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"
                 },
                 new()
                 {
-                    Email = "user@example.com", FirstName = "Test", LastName = "User", PasswordHash = passwordHasher.HashPassword("12345678")
+                    Id = "2",Email = "user@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"
                 },
                 new()
                 {
-                    Email = "first@example.com", FirstName = "Test", LastName = "User", PasswordHash = passwordHasher.HashPassword("12345678")
+                    Id = "3", Email = "first@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"
                 },
                 new()
                 {
-                    Email = "second@example.com", FirstName = "Test", LastName = "User", PasswordHash = passwordHasher.HashPassword("12345678")
+                    Id = "4",Email = "second@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"
                 }
             };
             return users;
@@ -47,10 +45,10 @@ namespace StudentContest.Api.Tests.Helpers
         {
             var refreshTokens = new List<RefreshToken>
             {
-                new() {UserId = 3, Token = "3token"},
+                new() {UserId = "3", Token = "3token"},
                 new()
                 {
-                    UserId = 4, Token = "notRevoked"
+                    UserId = "4", Token = "notRevoked"
                 }
             };
             return refreshTokens;

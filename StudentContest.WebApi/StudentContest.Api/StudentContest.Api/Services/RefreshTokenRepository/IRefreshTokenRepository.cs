@@ -10,6 +10,6 @@ namespace StudentContest.Api.Services.RefreshTokenRepository
 
         Task Delete(int id);
 
-        Task DeleteAll(int userId);
+        Task DeleteAll(string userId);
     }
 }

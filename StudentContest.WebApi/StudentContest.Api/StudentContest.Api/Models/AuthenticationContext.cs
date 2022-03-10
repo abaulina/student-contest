@@ -9,6 +9,14 @@ namespace StudentContest.Api.Models
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder
+                .Entity<User>()
+                .Property(e => e.Id)
+                .ValueGeneratedOnAdd();
+        }
+
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
     }

@@ -40,13 +40,12 @@ namespace StudentContest.Api.Tests.IntegrationTests
         }
 
         [Theory]
-        [InlineData("test@example.com", "Test", "User", "12345678")]
         [InlineData("test@.com", "Test", "User", "12345678")]
         [InlineData("test@example.com", ".Test", "User", "12345678")]
         [InlineData("test@example.com", "Test", "Use.r.", "12345678")]
         [InlineData("test@example.com", "Test", "User", "12")]
         [InlineData("", "", "", "")]
-        public async Task RegisterUser_InvalidData_ReturnsBadRequest(string email, string firstName, string lastName, string password)
+        public async Task RegisterUser_InvalidData_NotSuccess(string email, string firstName, string lastName, string password)
         {
             var registerRequest = new RegisterRequest
                 { Email = email, FirstName = firstName, LastName = lastName, Password = password };
@@ -54,7 +53,6 @@ namespace StudentContest.Api.Tests.IntegrationTests
             var response = await _client.PostAsync("users/register", Utilities.GetStringContent(registerRequest));
 
             Assert.False(response.IsSuccessStatusCode);
-            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
         [Fact]
@@ -97,16 +95,23 @@ namespace StudentContest.Api.Tests.IntegrationTests
         [Fact]
         public async Task Login_Success_ReturnsOkAndValidTokens()
         {
-            var loginRequest = new LoginRequest
-            { Email = "test@example.com", Password = "12345678" };
+            var registerRequest = new RegisterRequest
+                { Email = "loginSuccess@example.com", FirstName = "Test", LastName = "User", Password = "12345678" };
+            var loginRequest = new LoginRequest { Email = registerRequest.Email, Password = registerRequest.Password };
 
-            var response = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
-            var result = await response.Content.ReadAsAsync<AuthenticatedResponse>();
+            var registerResponse = await _client.PostAsync("users/register", Utilities.GetStringContent(registerRequest));
+
+            registerResponse.EnsureSuccessStatusCode();
+
+            var loginResponse = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
+            var result = await loginResponse.Content.ReadAsAsync<AuthenticatedResponse>();
             _client.DefaultRequestHeaders.Add("Authorization", "Bearer "+result.Token);
+            
+            loginResponse.EnsureSuccessStatusCode();
+
             var getResponse = await _client.GetAsync("users");
             var getResponseResult = await getResponse.Content.ReadAsAsync<User>();
 
-            response.EnsureSuccessStatusCode();
             getResponse.EnsureSuccessStatusCode();
             Assert.Equal(loginRequest.Email, getResponseResult.Email);
         }
@@ -123,10 +128,18 @@ namespace StudentContest.Api.Tests.IntegrationTests
         [Fact]
         public async Task Logout_Success_ImpossibleToReuseToken()
         {
-            var loginRequest = new LoginRequest
-                { Email = "test@example.com", Password = "12345678" };
+            var registerRequest = new RegisterRequest
+                { Email = "logoutSuccess@example.com", FirstName = "Test", LastName = "User", Password = "12345678" };
+            var loginRequest = new LoginRequest { Email = registerRequest.Email, Password = registerRequest.Password };
+
+            var registerResponse = await _client.PostAsync("users/register", Utilities.GetStringContent(registerRequest));
+
+            registerResponse.EnsureSuccessStatusCode();
+
             var loginResponse = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
             var loginResult = await loginResponse.Content.ReadAsAsync<AuthenticatedResponse>();
+
+            loginResponse.EnsureSuccessStatusCode();
             _client.DefaultRequestHeaders.Add("Cookie", loginResult.RefreshToken);
 
             var logoutResponse = await _client.DeleteAsync("users/logout");
@@ -148,8 +161,14 @@ namespace StudentContest.Api.Tests.IntegrationTests
         [Fact]
         public async Task RefreshToken_Success_NewTokenIsValid()
         {
-            var loginRequest = new LoginRequest
-                { Email = "test@example.com", Password = "12345678" };
+            var registerRequest = new RegisterRequest
+                { Email = "refreshSuccess@example.com", FirstName = "Test", LastName = "User", Password = "12345678" };
+            var loginRequest = new LoginRequest { Email = registerRequest.Email, Password = registerRequest.Password };
+
+            var registerResponse = await _client.PostAsync("users/register", Utilities.GetStringContent(registerRequest));
+
+            registerResponse.EnsureSuccessStatusCode();
+
             var loginResponse = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
             var loginResult = await loginResponse.Content.ReadAsAsync<AuthenticatedResponse>();
 
