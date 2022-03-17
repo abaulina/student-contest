@@ -43,6 +43,7 @@ builder.Services.AddScoped<Authenticator>();
 builder.Services.AddScoped<IRegisterRequestValidator, RegisterRequestValidator>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRefreshTokenRepository, DatabaseRefreshTokenRepository>();
+builder.Services.AddScoped<IUserManagerWrapper, UserManagerWrapper>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>

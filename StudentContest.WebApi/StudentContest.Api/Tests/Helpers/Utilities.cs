@@ -23,19 +23,19 @@ namespace StudentContest.Api.Tests.Helpers
             var users = new User[] {
                 new()
                 {
-                    Id = "1", Email = "test@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"
+                    Id = 1, Email = "test@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"
                 },
                 new()
                 {
-                    Id = "2",Email = "user@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"
+                    Id = 2,Email = "user@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"
                 },
                 new()
                 {
-                    Id = "3", Email = "first@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"
+                    Id = 3, Email = "first@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"
                 },
                 new()
                 {
-                    Id = "4",Email = "second@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"
+                    Id = 4,Email = "second@example.com", FirstName = "Test", LastName = "User", PasswordHash = "12345678"
                 }
             };
             return users;
@@ -45,10 +45,10 @@ namespace StudentContest.Api.Tests.Helpers
         {
             var refreshTokens = new List<RefreshToken>
             {
-                new() {UserId = "3", Token = "3token"},
+                new() {UserId = 3, Token = "3token"},
                 new()
                 {
-                    UserId = "4", Token = "notRevoked"
+                    UserId = 4, Token = "notRevoked"
                 }
             };
             return refreshTokens;

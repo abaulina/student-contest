@@ -11,7 +11,7 @@ using StudentContest.Api.Models;
 namespace StudentContest.Api.Migrations
 {
     [DbContext(typeof(AuthenticationContext))]
-    [Migration("20220304134310_Identity")]
+    [Migration("20220317073827_Identity")]
     partial class Identity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,9 +29,8 @@ namespace StudentContest.Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -40,8 +39,9 @@ namespace StudentContest.Api.Migrations
 
             modelBuilder.Entity("StudentContest.Api.Models.User", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("INTEGER");

@@ -13,33 +13,35 @@ namespace StudentContest.Api.Services
     {
         Task<AuthenticatedResponse> Login(LoginRequest loginRequest);
         Task Logout(string refreshToken);
-        Task<User?> GetUserInfo(string userId);
+        Task<User?> GetUserInfo(int userId);
         Task Register(RegisterRequest registerRequest);
         Task<AuthenticatedResponse> RefreshToken (string refreshToken);
     }
 
     public class UserService : IUserService
     {
-        private readonly UserManager<User> _userManager;
+        private readonly IUserManagerWrapper _userManagerWrapper;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly RefreshTokenValidator _refreshRefreshTokenValidator;
         private readonly IRegisterRequestValidator _registerRequestValidator;
         private readonly Authenticator _authenticator;
+        private readonly ILogger _logger;
 
-        public UserService(RefreshTokenValidator refreshRefreshTokenValidator, IRefreshTokenRepository refreshTokenRepository, Authenticator authenticator, UserManager<User> userManager, IRegisterRequestValidator registerRequestValidator)
+        public UserService(RefreshTokenValidator refreshRefreshTokenValidator, IRefreshTokenRepository refreshTokenRepository, Authenticator authenticator, IUserManagerWrapper userManagerWrapper, IRegisterRequestValidator registerRequestValidator, ILogger logger)
         {
             _refreshRefreshTokenValidator = refreshRefreshTokenValidator;
             _refreshTokenRepository = refreshTokenRepository;
             _authenticator = authenticator;
-            _userManager = userManager;
+            _userManagerWrapper = userManagerWrapper;
             _registerRequestValidator = registerRequestValidator;
+            _logger = logger;
         }
 
         public async Task<AuthenticatedResponse> Login(LoginRequest loginRequest)
         {
-            var user = await  _userManager.FindByEmailAsync(loginRequest.Email);
+            var user = await  _userManagerWrapper.FindByEmailAsync(loginRequest.Email);
 
-            var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, loginRequest.Password);
+            var isPasswordCorrect = await _userManagerWrapper.CheckPasswordAsync(user, loginRequest.Password);
             if (user == null || !isPasswordCorrect)
                 throw new InvalidCredentialException("Email or password is incorrect");
             
@@ -52,9 +54,10 @@ namespace StudentContest.Api.Services
             var refreshToken = await GetValidRefreshToken(token);
 
             await _refreshTokenRepository.DeleteAll(refreshToken.UserId);
+            _logger.Log(LogLevel.Debug, "Logout using token " + token);
         }
 
-        public async Task<User?> GetUserInfo(string userId)
+        public async Task<User?> GetUserInfo(int userId)
         {
             return await GetUser(userId);
         }
@@ -63,7 +66,7 @@ namespace StudentContest.Api.Services
         {
             _registerRequestValidator.ValidateUserPersonalData(registerRequest);
             var newUser = new User {Email = registerRequest.Email, FirstName = registerRequest.FirstName, LastName = registerRequest.LastName, UserName  = registerRequest.Email};
-            var result = await _userManager.CreateAsync(newUser, registerRequest.Password);
+            var result = await _userManagerWrapper.CreateAsync(newUser, registerRequest.Password);
 
             if (!result.Succeeded)
             {
@@ -82,6 +85,7 @@ namespace StudentContest.Api.Services
 
         public async Task<AuthenticatedResponse> RefreshToken(string token)
         {
+            _logger.Log(LogLevel.Debug, "Refresh attempt using token " + token);
             var refreshToken = await GetValidRefreshToken(token);
 
             await _refreshTokenRepository.Delete(refreshToken.Id);
@@ -92,9 +96,9 @@ namespace StudentContest.Api.Services
             return response;
         }
 
-        private async Task<User?> GetUser(string id)
+        private async Task<User?> GetUser(int id)
         {
-            var user = await _userManager.FindByIdAsync(id);
+            var user = await _userManagerWrapper.FindByIdAsync(id);
             if (user == null)
                 throw new KeyNotFoundException();
             return new User

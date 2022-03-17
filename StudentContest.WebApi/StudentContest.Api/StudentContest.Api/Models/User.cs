@@ -2,7 +2,7 @@
 
 namespace StudentContest.Api.Models
 {
-    public class User: IdentityUser<string>
+    public class User: IdentityUser<int>
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }

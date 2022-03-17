@@ -25,7 +25,7 @@ namespace StudentContest.Api.Auth
         {
             var claims = new List<Claim>
             {
-                new("id", user.Id)
+                new("id", user.Id.ToString())
             };
 
             var expirationTime = DateTime.UtcNow.AddMinutes(_authenticationConfiguration.AccessTokenExpirationMinutes);

@@ -25,7 +25,12 @@ namespace StudentContest.Api.Controllers
         public async Task<ActionResult<User>> GetUser()
         {
             var userId = HttpContext.User.FindFirstValue("id");
-            var userInfo = await _userService.GetUserInfo(userId);
+            if (!int.TryParse(userId, out var id))
+            {
+                return Unauthorized();
+            }
+
+            var userInfo = await _userService.GetUserInfo(id);
             return Ok(userInfo);
         }
 
