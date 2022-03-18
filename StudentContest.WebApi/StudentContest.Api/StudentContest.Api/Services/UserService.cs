@@ -54,7 +54,6 @@ namespace StudentContest.Api.Services
             var refreshToken = await GetValidRefreshToken(token);
 
             await _refreshTokenRepository.DeleteAll(refreshToken.UserId);
-            _logger.Log(LogLevel.Debug, "Logout using token " + token);
         }
 
         public async Task<User?> GetUserInfo(int userId)
@@ -85,7 +84,6 @@ namespace StudentContest.Api.Services
 
         public async Task<AuthenticatedResponse> RefreshToken(string token)
         {
-            _logger.Log(LogLevel.Debug, "Refresh attempt using token " + token);
             var refreshToken = await GetValidRefreshToken(token);
 
             await _refreshTokenRepository.Delete(refreshToken.Id);
