@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, createRef } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { registerUser } from '../../serverRequests.js';
 import EmailInput from '../emailInput';
 import NameInput from './nameInput';
 import PasswordInput from '../passwordInput';
@@ -16,7 +17,6 @@ const AlreadyRegisteredLink = () => (
 );
 
 function SignUp() {
-	const localStorage = window.localStorage;
 	const [email, setEmail] = useState();
 	const [password, setPassword] = useState();
 	const [firstName, setFirstName] = useState();
@@ -136,13 +136,8 @@ function SignUp() {
 		return regex.test(email);
 	};
 
-	const isEmailBeingUsed = () => {
-		const users = JSON.parse(localStorage.getItem('Users')) || [];
-		return users.some((user) => user.email === email);
-	};
-
 	const validateEmail = () => {
-		if (!isCorrectEmailFormat() || isEmailBeingUsed()) {
+		if (!isCorrectEmailFormat()) {
 			setErrors((prevState) => ({
 				...prevState,
 				email: 'Email is invalid'
@@ -170,22 +165,26 @@ function SignUp() {
 			validateEmail() &&
 			validatePassword()
 		) {
-			registerUser();
-			setCapsWarningShown((isCapsWarningShown) => !isCapsWarningShown);
-			setSignUpSuccess(true);
+			addNewUser();
 		}
 	};
 
-	const registerUser = () => {
-		const users = JSON.parse(localStorage.getItem('Users')) || [];
-		var userData = {
+	const getUserCredentialsToRegister = () => {
+		return {
 			email: email,
 			password: password,
 			firstName: firstName,
 			lastName: lastName
 		};
-		users.push(userData);
-		localStorage.setItem('Users', JSON.stringify(users));
+	};
+
+	const addNewUser = async () => {
+		var userData = getUserCredentialsToRegister();
+		const isSuccess = await registerUser(userData);
+		if (isSuccess) {
+			setCapsWarningShown((isCapsWarningShown) => !isCapsWarningShown);
+			setSignUpSuccess(true);
+		}
 	};
 
 	const onEnterPress = (e) => {
@@ -219,6 +218,7 @@ function SignUp() {
 			Sign Up
 		</button>
 	);
+
 	return isSignUpSuccess ? (
 		<SignUpSuccess />
 	) : (

@@ -38,7 +38,6 @@ namespace StudentContest.Api.ExceptionMiddleware
             
             response.StatusCode = exception switch
             {
-                ArgumentException _ => (int)HttpStatusCode.BadRequest,
                 DbUpdateException _ => (int)HttpStatusCode.InternalServerError,
                 InvalidCredentialException => (int)HttpStatusCode.Unauthorized,
                 SaltParseException => (int)HttpStatusCode.Unauthorized,

@@ -1,16 +1,15 @@
 import React from 'react';
-import Cookies from 'js-cookie';
 import PrivateRoute from './../privateRoute';
+import { getUserInfo } from '../serverRequests';
+import useAuth from '../auth/useAuth';
 import './userAccount.css';
 
-const getLoggedInUserInfo = () => {
-	const userEmail = Cookies.get('userEmail');
-	const users = JSON.parse(localStorage.getItem('Users')) || [];
-	return users.filter((user) => user.email === userEmail)[0] || null;
+const getLoggedInUserInfo = async () => {
+	return await getUserInfo(useAuth().accessToken);
 };
 
-function UserAccount() {
-	const loggedInUser = getLoggedInUserInfo();
+async function UserAccount() {
+	const loggedInUser = await getLoggedInUserInfo();
 	const name = loggedInUser.firstName;
 	const lastName = loggedInUser.lastName;
 

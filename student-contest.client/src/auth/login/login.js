@@ -21,7 +21,6 @@ const NoAccountLink = () => (
 );
 
 function Login() {
-	const localStorage = window.localStorage;
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [isPasswordShown, setPasswordShown] = useState(false);
@@ -75,39 +74,24 @@ function Login() {
 		}
 	};
 
-	const validateInput = () => {
-		if (validateEmail() && validatePassword()) {
-			return doLogin();
-		}
-	};
-
-	const doLogin = () => {
-		setCapsWarningShown((isCapsWarningShown) => !isCapsWarningShown);
-		setError(null);
-		auth.login(email);
-		if (!location.state || (location.state && !location.state.path))
-			navigate('/user');
-		else navigate(location.state.path);
-	};
-
-	const validateEmail = () => {
-		const users = JSON.parse(localStorage.getItem('Users')) || [];
-		if (!users.some((user) => user.email === email)) {
+	const doLogin = async () => {
+		await auth.login(getLoginCredentials());
+		if (!auth.isAuthenticated) {
 			setError('Invalid email or password');
-			return false;
+		} else {
+			setCapsWarningShown((isCapsWarningShown) => !isCapsWarningShown);
+			setError(null);
+			if (!location.state || (location.state && !location.state.path))
+				navigate('/user');
+			else navigate(location.state.path);
 		}
-		return true;
 	};
 
-	const validatePassword = () => {
-		const users = JSON.parse(localStorage.getItem('Users')) || [];
-		if (
-			!users.some((user) => user.email === email && user.password === password)
-		) {
-			setError('Invalid email or password');
-			return false;
-		}
-		return true;
+	const getLoginCredentials = () => {
+		return {
+			email: email,
+			password: password
+		};
 	};
 
 	const SubmitButton = () => (
@@ -116,7 +100,7 @@ function Login() {
 			type='submit'
 			className='button default mt-4'
 			disabled={!email || !password}
-			onClick={validateInput}>
+			onClick={doLogin}>
 			Submit
 		</button>
 	);

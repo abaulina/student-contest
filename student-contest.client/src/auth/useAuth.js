@@ -1,22 +1,40 @@
-import React, { createContext, useContext, useState } from 'react';
-import Cookies from 'js-cookie';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import {
+	refreshToken as sendRefreshRequest,
+	logout as sendLogoutRequest,
+	login as sendLoginRequest
+} from '../serverRequests';
 
 const authContext = createContext();
 
 function useProvideAuth() {
 	const [isAuthenticated, setAuthenticated] = useState(
-		Cookies.get('userEmail') ? true : false
+		accessToken ? true : false
 	);
+	const [accessToken, setAccessToken] = useState();
 
-	const login = (email) => {
+	useEffect(() => {
+		refreshToken();
+	});
+
+	const login = async (loginCredentials) => {
+		const accessToken = await sendLoginRequest(loginCredentials);
 		setAuthenticated(true);
-		Cookies.set('userEmail', email, { expires: 30 });
+		setAccessToken(accessToken);
 	};
 
-	const logout = () => {
+	const logout = async () => {
+		setAccessToken(null);
 		setAuthenticated(false);
-		Cookies.remove('userEmail');
+		await sendLogoutRequest();
+	};
+
+	const refreshToken = async () => {
+		setTimeout(async () => {
+			const accessToken = await sendRefreshRequest();
+			setAccessToken(accessToken);
+		}, 15 * 60000 - 1000);
 	};
 
 	return {

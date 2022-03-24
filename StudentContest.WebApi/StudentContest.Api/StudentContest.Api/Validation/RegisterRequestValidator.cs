@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using StudentContest.Api.ExceptionMiddleware;
 using StudentContest.Api.Models;
 
 namespace StudentContest.Api.Validation
@@ -21,14 +22,14 @@ namespace StudentContest.Api.Validation
         {
             var regex = new Regex(@"^[a-zA-ZаЯЁёА-я]+([-]?\s?[a-zA-ZЁёА-я])?$");
             if (firstName == null || !regex.IsMatch(firstName))
-                throw new ArgumentException("First name is invalid");
+                throw new ApiException("First name is invalid");
         }
 
         public void ValidateLastName(string? lastName)
         {
             var regex = new Regex(@"^[a-zA-ZаЯЁёА-я]+([-]?\s?[a-zA-ZЁёА-я])?$");
             if (lastName == null || !regex.IsMatch(lastName))
-                throw new ArgumentException("Last name is invalid");
+                throw new ApiException("Last name is invalid");
         }
 
         public void ValidateEmail(string? email)
@@ -36,7 +37,7 @@ namespace StudentContest.Api.Validation
             var regex = new Regex(
                 @"^(([^<>()[\].,;:\s@""]+(\.[^<>()[\].,;:\s@""]+)*)|("".+""))@(([^<>()[\].,;:\s@""]+\.)+[^<>()[\].,;:\s@""]{2,})$");
             if (email == null || !regex.IsMatch(email))
-                throw new ArgumentException("Email is invalid");
+                throw new ApiException("Email is invalid");
         }
     }
 }

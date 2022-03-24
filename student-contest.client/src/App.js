@@ -1,11 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import cn from 'classnames';
-import Cookies from 'js-cookie';
 import { Toaster } from 'react-hot-toast';
 import { WrappedLogin } from './auth/login/login';
 import Main from './main/mainPage';
-import NotFound from './error404/notFound';
+import NotFound from './errors/errorPages/notFound';
 import { WrappedSignup } from './auth/signup/signup';
 import PrivatePage from './privatePage';
 import useAuth, { AuthProvider } from './auth/useAuth';
@@ -60,7 +59,6 @@ const NavBarLogoutButton = () => {
 	const auth = useAuth();
 	const handleLogOut = () => {
 		auth.logout();
-		Cookies.remove('userEmail');
 	};
 
 	return (
