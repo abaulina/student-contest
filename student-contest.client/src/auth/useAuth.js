@@ -1,18 +1,18 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-	refreshToken as sendRefreshRequest,
-	logout as sendLogoutRequest,
-	login as sendLoginRequest
+	sendRefreshRequest,
+	sendLogoutRequest,
+	sendLoginRequest
 } from '../serverRequests';
 
 const authContext = createContext();
 
 function useProvideAuth() {
+	const [accessToken, setAccessToken] = useState('');
 	const [isAuthenticated, setAuthenticated] = useState(
 		accessToken ? true : false
 	);
-	const [accessToken, setAccessToken] = useState();
 
 	useEffect(() => {
 		refreshToken();
@@ -20,8 +20,10 @@ function useProvideAuth() {
 
 	const login = async (loginCredentials) => {
 		const accessToken = await sendLoginRequest(loginCredentials);
-		setAuthenticated(true);
-		setAccessToken(accessToken);
+		if (accessToken) {
+			setAccessToken(accessToken);
+			setAuthenticated(true);
+		}
 	};
 
 	const logout = async () => {
@@ -39,6 +41,7 @@ function useProvideAuth() {
 
 	return {
 		isAuthenticated,
+		accessToken,
 		login,
 		logout
 	};

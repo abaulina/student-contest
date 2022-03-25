@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, createRef } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { registerUser } from '../../serverRequests.js';
+import { isInputValid } from './inputValidator.js';
 import EmailInput from '../emailInput';
 import NameInput from './nameInput';
 import PasswordInput from '../passwordInput';
@@ -98,73 +99,8 @@ function SignUp() {
 			}));
 	}, [lastName]);
 
-	const isFirstNameValid = () => {
-		const regex = /^[a-zA-ZаЯЁёА-я]+([-]?\s?[a-zA-ZЁёА-я])?$/;
-		return regex.test(firstName);
-	};
-
-	const isLastNameValid = () => {
-		const regex = /^[a-zA-ZаЯЁёА-я]+([-]?\s?[a-zA-ZЁёА-я])?$/;
-		return regex.test(lastName);
-	};
-
-	const validateName = () => {
-		if (!isFirstNameValid()) {
-			setErrors((prevState) => ({
-				...prevState,
-				firstName: 'First name is invalid'
-			}));
-			return false;
-		}
-		return true;
-	};
-
-	const validateLastName = () => {
-		if (!isLastNameValid()) {
-			setErrors((prevState) => ({
-				...prevState,
-				lastName: 'Last name is invalid'
-			}));
-			return false;
-		}
-		return true;
-	};
-
-	const isCorrectEmailFormat = () => {
-		const regex =
-			/^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i;
-		return regex.test(email);
-	};
-
-	const validateEmail = () => {
-		if (!isCorrectEmailFormat()) {
-			setErrors((prevState) => ({
-				...prevState,
-				email: 'Email is invalid'
-			}));
-			return false;
-		}
-		return true;
-	};
-
-	const validatePassword = () => {
-		if (password.length < 8) {
-			setErrors((prevState) => ({
-				...prevState,
-				password: 'Password is invalid. It must be at least 8 characters'
-			}));
-			return false;
-		}
-		return true;
-	};
-
 	const onSignUpClick = () => {
-		if (
-			validateName() &&
-			validateLastName() &&
-			validateEmail() &&
-			validatePassword()
-		) {
+		if (isInputValid(getUserCredentialsToRegister(), setErrors)) {
 			addNewUser();
 		}
 	};
@@ -184,7 +120,11 @@ function SignUp() {
 		if (isSuccess) {
 			setCapsWarningShown((isCapsWarningShown) => !isCapsWarningShown);
 			setSignUpSuccess(true);
-		}
+		} else
+			setErrors((prevState) => ({
+				...prevState,
+				email: 'Email is invalid'
+			}));
 	};
 
 	const onEnterPress = (e) => {
@@ -236,14 +176,14 @@ function SignUp() {
 					name='First Name'
 					error={errors.firstName}
 					onEnterPress={onEnterPress}
-					onInput={onLastNameInput}
+					onInput={onFirstNameInput}
 					ref={firstNameInput}
 				/>
 				<NameInput
 					name='Last Name'
 					error={errors.lastName}
 					onEnterPress={onEnterPress}
-					onInput={onFirstNameInput}
+					onInput={onLastNameInput}
 					ref={lastNameInput}
 				/>
 				<PasswordInput

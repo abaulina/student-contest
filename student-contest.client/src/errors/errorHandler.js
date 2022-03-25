@@ -1,24 +1,19 @@
-import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 
-const navigate = useNavigate();
+// const navigate = useNavigate();
 
 function handleError(response) {
 	switch (response.status) {
-		case 409: {
-			toast.error('Email is invalid');
-			break;
-		}
 		case 404: {
 			//get user info - user not found - ???
 			break;
 		}
 		case 401: {
 			// invalid token, etc - ???
-			break;
+			throw Error(response.message);
 		}
 		default: {
-			navigate('/error');
+			//navigate('/error');
 			throw Error(response.message);
 		}
 	}

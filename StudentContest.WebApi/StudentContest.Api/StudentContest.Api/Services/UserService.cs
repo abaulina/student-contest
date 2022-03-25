@@ -72,7 +72,9 @@ namespace StudentContest.Api.Services
                 var primaryError = result.Errors.FirstOrDefault();
                 switch (primaryError?.Code)
                 {
-                    case nameof(IdentityErrorDescriber.DuplicateEmail):case  nameof(IdentityErrorDescriber.InvalidEmail) :
+                    case nameof(IdentityErrorDescriber.DuplicateEmail):
+                    case nameof(IdentityErrorDescriber.InvalidEmail):
+                    case nameof(IdentityErrorDescriber.DuplicateUserName):
                         throw new ApiException("Email is invalid");
                     case nameof(IdentityErrorDescriber.PasswordTooShort):
                         throw new ApiException("Password is invalid. It must be at least 8 characters");

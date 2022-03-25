@@ -43,7 +43,7 @@ namespace StudentContest.Api.ExceptionMiddleware
                 SaltParseException => (int)HttpStatusCode.Unauthorized,
                 SecurityTokenException => (int)HttpStatusCode.Unauthorized,
                 KeyNotFoundException => (int)HttpStatusCode.NotFound,
-                ApiException => (int)HttpStatusCode.Conflict,
+                ApiException => (int)HttpStatusCode.Unauthorized,
                 _ => (int)HttpStatusCode.BadRequest
             };
 

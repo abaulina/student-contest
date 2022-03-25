@@ -16,8 +16,10 @@ builder.Services.AddDbContext<AuthenticationContext>(opt =>
 
 builder.Services.AddCors(options => options.AddPolicy("ApiCorsPolicy", corsPolicyBuilder =>
 {
-    corsPolicyBuilder.AllowAnyOrigin().AllowAnyMethod()
-        .AllowAnyHeader();
+    corsPolicyBuilder.AllowAnyMethod()
+        .AllowAnyHeader()
+        .SetIsOriginAllowed(origin => true) 
+        .AllowCredentials();
 }));
 builder.Services.AddControllers().AddNewtonsoftJson();
 builder.Services.AddIdentityCore<User>(u =>

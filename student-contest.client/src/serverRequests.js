@@ -12,8 +12,8 @@ export async function getUserInfo(accessToken) {
 			}
 		});
 		if (response.ok) {
-			const data = await response.json();
-			return { userInfo: data };
+			const userInfo = await response.json();
+			return userInfo;
 		} else handleError(response);
 	} catch (error) {
 		console.error(error);
@@ -31,10 +31,11 @@ export async function registerUser(newUser) {
 	return handleResponse(response);
 }
 
-export async function login(loginCredentials) {
+export async function sendLoginRequest(loginCredentials) {
 	try {
 		const response = await fetch(`${url}/login`, {
 			method: 'POST',
+			credentials: 'include',
 			headers: {
 				'Content-Type': 'application/json'
 			},
@@ -42,16 +43,17 @@ export async function login(loginCredentials) {
 		});
 		if (response.ok) {
 			const data = await response.json();
-			return { accessToken: data };
+			return data.token;
 		} else handleError(response);
 	} catch (error) {
 		console.error(error);
 	}
 }
 
-export async function refreshToken() {
+export async function sendRefreshRequest() {
 	try {
 		const response = await fetch(`${url}/refresh-token`, {
+			credentials: 'include',
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -59,15 +61,16 @@ export async function refreshToken() {
 		});
 		if (response.ok) {
 			const data = await response.json();
-			return { accessToken: data };
+			return data;
 		} else handleError(response);
 	} catch (error) {
 		console.error(error);
 	}
 }
 
-export async function logout() {
+export async function sendLogoutRequest() {
 	const response = await fetch(`${url}/logout`, {
+		credentials: 'include',
 		method: 'DELETE'
 	});
 	return handleResponse(response);
