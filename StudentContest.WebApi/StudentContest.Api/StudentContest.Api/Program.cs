@@ -16,9 +16,8 @@ builder.Services.AddDbContext<AuthenticationContext>(opt =>
 
 builder.Services.AddCors(options => options.AddPolicy("ApiCorsPolicy", corsPolicyBuilder =>
 {
-    corsPolicyBuilder.AllowAnyMethod()
+    corsPolicyBuilder.WithOrigins("http://localhost:3000", "https://localhost:3000", "https://localhost:7050").AllowAnyMethod()
         .AllowAnyHeader()
-        .SetIsOriginAllowed(origin => true) 
         .AllowCredentials();
 }));
 builder.Services.AddControllers().AddNewtonsoftJson();
