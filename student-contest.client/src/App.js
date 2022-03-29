@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import { WrappedLogin } from './auth/login/login';
 import Main from './main/mainPage';
 import NotFound from './errors/errorPages/notFound';
+import DefaultErrorPage from './errors/errorPages/default';
 import { WrappedSignup } from './auth/signup/signup';
 import PrivatePage from './privatePage';
 import useAuth, { AuthProvider } from './auth/useAuth';
@@ -27,6 +28,7 @@ function App() {
 							<Route path='/signup' element={<WrappedSignup />} />
 							<Route path='/user' element={<WrappedUserAccount />} />
 							<Route path='/test' element={<PrivatePage />} />
+							<Route path='/error' element={<DefaultErrorPage />} />
 							<Route path='*' element={<NotFound />} />
 						</Routes>
 					</div>

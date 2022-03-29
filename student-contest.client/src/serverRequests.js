@@ -14,9 +14,10 @@ export async function getUserInfo(accessToken) {
 		if (response.ok) {
 			const userInfo = await response.json();
 			return userInfo;
-		} else handleError(response);
+		} else throw new Error(response);
 	} catch (error) {
-		console.error(error);
+		if (!error.status) error.status = 500;
+		handleError(error.status);
 	}
 }
 
@@ -44,9 +45,10 @@ export async function sendLoginRequest(loginCredentials) {
 		if (response.ok) {
 			const data = await response.json();
 			return data.token;
-		} else handleError(response);
+		} else throw new Error(response);
 	} catch (error) {
-		console.error(error);
+		if (!error.status) error.status = 500;
+		handleError(error.status);
 	}
 }
 
@@ -62,9 +64,10 @@ export async function sendRefreshRequest() {
 		if (response.ok) {
 			const data = await response.json();
 			return data;
-		} else handleError(response);
+		} else throw new Error(response);
 	} catch (error) {
-		console.error(error);
+		if (!error.status) error.status = 500;
+		handleError(error.status);
 	}
 }
 
@@ -80,8 +83,9 @@ function handleResponse(response) {
 	try {
 		if (response.ok) {
 			return true;
-		} else handleError(response);
+		} else throw new Error(response);
 	} catch (error) {
-		console.error(error);
+		if (!error.status) error.status = 500;
+		handleError(error.status);
 	}
 }

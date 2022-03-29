@@ -1,20 +1,16 @@
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-// const navigate = useNavigate();
-
-function handleError(response) {
-	switch (response.status) {
+function handleError(responseStatus) {
+	const navigate = useNavigate();
+	switch (responseStatus) {
 		case 404: {
-			//get user info - user not found - ???
+			navigate('/notfound');
 			break;
 		}
-		case 401: {
-			// invalid token, etc - ???
-			throw Error(response.message);
-		}
+		case 401:
+			break;
 		default: {
-			//navigate('/error');
-			throw Error(response.message);
+			navigate('/error');
 		}
 	}
 }

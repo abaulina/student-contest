@@ -16,7 +16,7 @@ function useProvideAuth() {
 
 	useEffect(() => {
 		refreshToken();
-	});
+	}, []);
 
 	const login = async (loginCredentials) => {
 		const accessToken = await sendLoginRequest(loginCredentials);
@@ -33,9 +33,13 @@ function useProvideAuth() {
 	};
 
 	const refreshToken = async () => {
-		setTimeout(async () => {
-			const accessToken = await sendRefreshRequest();
+		const accessToken = await sendRefreshRequest();
+		if (accessToken) {
 			setAccessToken(accessToken);
+			setAuthenticated(true);
+		} else setAuthenticated(false);
+		setTimeout(async () => {
+			refreshToken();
 		}, 15 * 60000 - 1000);
 	};
 
