@@ -5,22 +5,10 @@ import { MemoryRouter } from 'react-router-dom';
 import SignUp from './../auth/signup/signup';
 import { invalidSignupEntries, validUser } from './data/inputData';
 
-let localStorageGetSpy = null;
-let localStorageSetSpy = null;
-
-beforeEach(() => {
-	localStorageGetSpy = jest
-		.spyOn(Storage.prototype, 'getItem')
-		.mockReturnValue(
-			'[{"email":"test@example.com","password":"12345678","firstName":"Test","lastName":"User"}]'
-		);
-	localStorageSetSpy = jest.spyOn(Storage.prototype, 'setItem');
-});
-
-afterEach(() => {
-	localStorageGetSpy.mockRestore();
-	localStorageSetSpy.mockRestore();
-});
+jest.mock('../serverRequests.js', () => ({
+	...jest.requireActual('../serverRequests.js'),
+	registerUser: jest.fn().mockReturnValue(false)
+}));
 
 it('renders without crashing', () => {
 	render(
@@ -30,7 +18,12 @@ it('renders without crashing', () => {
 	);
 });
 
-describe('SignUp input test', () => {
+describe('SignUp invalid input test', () => {
+	jest.mock('../serverRequests.js', () => ({
+		...jest.requireActual('../serverRequests.js'),
+		registerUser: jest.fn().mockReturnValue(true)
+	}));
+
 	it.each(invalidSignupEntries)(
 		'check invalid combination for validity',
 		async (signUpEntry) => {
@@ -56,7 +49,9 @@ describe('SignUp input test', () => {
 			expect(await screen.findByText(/invalid/i)).not.toBeNull();
 		}
 	);
+});
 
+describe('SignUp valid input test', () => {
 	it('valid input success', async () => {
 		render(
 			<MemoryRouter>

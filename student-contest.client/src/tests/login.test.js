@@ -5,20 +5,6 @@ import { MemoryRouter } from 'react-router-dom';
 import Login from './../auth/login/login';
 import { invalidLoginEntries, validLoginEntry } from './data/inputData';
 
-let localStorageGetSpy = null;
-
-beforeEach(() => {
-	localStorageGetSpy = jest
-		.spyOn(Storage.prototype, 'getItem')
-		.mockReturnValue(
-			'[{"email":"test@example.com","password":"12345678","firstName":"Test","lastName":"User"}]'
-		);
-});
-
-afterEach(() => {
-	localStorageGetSpy.mockRestore();
-});
-
 it('renders without crashing', () => {
 	render(
 		<MemoryRouter>
@@ -27,7 +13,9 @@ it('renders without crashing', () => {
 	);
 });
 
-describe('Login input test', () => {
+describe('Login invalid input test', () => {
+	//mock useAuth to return false
+
 	it.each(invalidLoginEntries)(
 		'check combination for validity',
 		async (loginEntry) => {
@@ -49,10 +37,12 @@ describe('Login input test', () => {
 			expect(
 				await screen.findByText(/Invalid email or password/i)
 			).not.toBeNull();
-			expect(localStorageGetSpy).toHaveBeenCalled();
 		}
 	);
+});
 
+describe('Login valid input test', () => {
+	//mock useAuth to return true
 	it('valid input success', async () => {
 		render(
 			<MemoryRouter>

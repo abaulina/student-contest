@@ -115,3 +115,8 @@ export const validLoginEntry = {
 	email: 'test@example.com',
 	password: '12345678'
 };
+
+export const notUsedUser = {
+	email: 'notUsedAtAll@example.com',
+	password: '12345678'
+};

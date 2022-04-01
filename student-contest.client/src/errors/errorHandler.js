@@ -1,16 +1,16 @@
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 
 function handleError(responseStatus) {
-	const navigate = useNavigate();
+	// const navigate = useNavigate();
 	switch (responseStatus) {
 		case 404: {
-			navigate('/notfound');
+			// navigate('/notfound');
 			break;
 		}
 		case 401:
-			break;
+			return false;
 		default: {
-			navigate('/error');
+			// navigate('/error');
 		}
 	}
 }

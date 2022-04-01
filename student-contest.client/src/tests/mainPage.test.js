@@ -10,6 +10,7 @@ describe('Main when isAuthenticated', () => {
 				__esModule: true,
 				...originalModule,
 				default: () => ({
+					accessToken: 'token',
 					isAuthenticated: true,
 					login: jest.fn,
 					logout: jest.fn

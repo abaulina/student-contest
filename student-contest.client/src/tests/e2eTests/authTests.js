@@ -1,6 +1,6 @@
 import { Selector } from 'testcafe';
-import { login, loginAfterSignup } from './auth';
-import { validUser } from '../data/inputData';
+import { login } from './auth';
+import { validUser, notUsedUser } from '../data/inputData';
 
 fixture`Main page`.page`http://localhost:3000`;
 
@@ -74,6 +74,58 @@ test('sign up success then login success', async (t) => {
 		.eql('Thanks for signing up')
 
 		.click(Selector('a').withText('Log in'));
-	await loginAfterSignup(t);
+	await login(t);
 	await t.expect(Selector('p').innerText).contains('Nice to see you again,');
+});
+
+test('impossible to register with duplicate email', async (t) => {
+	const firstNameInput = Selector('#floatingFirstName');
+	const lastNameInput = Selector('#floatingLastName');
+	const emailInput = Selector('#floatingEmail');
+	const passwordInput = Selector('#floatingPassword');
+
+	await t
+		.click(Selector('button').withText('Sign up'))
+		.expect(Selector('h3').innerText)
+		.eql('Create account')
+
+		.expect(firstNameInput.exists)
+		.ok()
+		.typeText(firstNameInput, validUser.firstName)
+		.expect(firstNameInput.value)
+		.eql(validUser.firstName)
+
+		.expect(lastNameInput.exists)
+		.ok()
+		.typeText(lastNameInput, validUser.lastName)
+		.expect(lastNameInput.value)
+		.eql(validUser.lastName)
+
+		.expect(emailInput.exists)
+		.ok()
+		.typeText(emailInput, validUser.email) //поменять!
+		.expect(emailInput.value)
+		.eql(validUser.email)
+
+		.expect(passwordInput.exists)
+		.ok()
+		.typeText(passwordInput, validUser.password)
+		.expect(passwordInput.value)
+		.eql(validUser.password)
+
+		.click('button.default')
+		.expect(Selector('.invalid-feedback').innerText)
+		.eql('Email is invalid');
+});
+
+test('impossible to login with not used email', async (t) => {
+	const emailInput = Selector('#floatingEmail');
+	const passwordInput = Selector('#floatingPassword');
+
+	await t
+		.typeText(emailInput, notUsedUser.email)
+		.typeText(passwordInput, notUsedUser.password)
+		.click(Selector('button').withText('Submit'))
+		.expect(Selector('.invalid-feedback').innerText)
+		.eql('Invalid email or password');
 });

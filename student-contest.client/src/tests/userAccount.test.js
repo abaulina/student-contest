@@ -1,30 +1,39 @@
 import React from 'react';
-import Cookies from 'js-cookie';
+import nock from 'nock';
 import { render, screen } from '@testing-library/react';
 import UserAccount from '../user/userAccount';
-
-let cookieGetSpy = null;
-let localStorageGetSpy = null;
-
-beforeEach(() => {
-	cookieGetSpy = jest.spyOn(Cookies, 'get').mockReturnValue('test@example.com');
-	localStorageGetSpy = jest
-		.spyOn(Storage.prototype, 'getItem')
-		.mockReturnValue(
-			'[{"email":"test@example.com","password":"12345678","firstName":"Test","lastName":"User"}]'
-		);
-});
-
-afterEach(() => {
-	cookieGetSpy.mockRestore();
-	localStorageGetSpy.mockRestore();
-});
+import configData from '../config.json';
 
 it('renders without crashing', () => {
 	render(<UserAccount />);
 });
 
 it('renders with correct name', () => {
+	jest.mock('../auth/useAuth', () => {
+		const originalModule = jest.requireActual('../auth/useAuth');
+		return {
+			__esModule: true,
+			...originalModule,
+			default: () => ({
+				isAuthenticated: true,
+				accessToken: 'token',
+				login: jest.fn,
+				logout: jest.fn
+			})
+		};
+	});
+	// eslint-disable-next-line no-unused-vars
+	const scope = nock(configData.SERVER_URL, {
+		reqheaders: {
+			authorization: 'Bearer token'
+		}
+	})
+		.get('/')
+		.once()
+		.reply(200, {
+			data: '[{"email":"test@example.com","firstName":"Test","lastName":"User"}]'
+		});
+
 	render(<UserAccount />);
 
 	expect(
