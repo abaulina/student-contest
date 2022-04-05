@@ -2,25 +2,26 @@ import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
 import App from '../App';
 
-describe('App when isAuthenticated', () => {
-	jest.mock('../auth/useAuth', () => {
-		const originalModule = jest.requireActual('../auth/useAuth');
-		return {
-			__esModule: true,
-			...originalModule,
-			default: () => ({
-				isAuthenticated: true,
-				login: jest.fn,
-				logout: jest.fn
-			})
-		};
-	});
+jest.resetAllMocks();
+jest.mock('../auth/useAuth', () => {
+	const originalModule = jest.requireActual('../auth/useAuth');
+	return {
+		__esModule: true,
+		...originalModule,
+		default: () => ({
+			accessToken: 'token',
+			isAuthenticated: true,
+			login: jest.fn,
+			logout: jest.fn
+		})
+	};
+});
 
+describe('App when isAuthenticated', () => {
 	it('renders without crashing', () => {
 		render(<App />);
 	});
 
-	//!
 	it('LogOut button is visible when isAuthenticated', () => {
 		render(<App />);
 
@@ -33,7 +34,6 @@ describe('App when isAuthenticated', () => {
 		expect(document.getElementsByClassName('btn invisible')).not.toBeNull();
 	});
 
-	//!
 	it('SignUp button is not rendered when isAuthenticated', () => {
 		render(<App />);
 
@@ -41,20 +41,20 @@ describe('App when isAuthenticated', () => {
 	});
 });
 
-describe('App when !isAuthenticated', () => {
-	jest.mock('../auth/useAuth', () => {
-		const originalModule = jest.requireActual('../auth/useAuth');
-		return {
-			__esModule: true,
-			...originalModule,
-			default: () => ({
-				isAuthenticated: false,
-				login: jest.fn,
-				logout: jest.fn
-			})
-		};
-	});
+jest.mock('../auth/useAuth', () => {
+	const originalModule = jest.requireActual('../auth/useAuth');
+	return {
+		__esModule: true,
+		...originalModule,
+		default: () => ({
+			isAuthenticated: false,
+			login: jest.fn,
+			logout: jest.fn
+		})
+	};
+});
 
+describe('App when !isAuthenticated', () => {
 	it('renders without crashing', () => {
 		render(<App />);
 	});

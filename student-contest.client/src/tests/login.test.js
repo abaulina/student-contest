@@ -13,9 +13,20 @@ it('renders without crashing', () => {
 	);
 });
 
-describe('Login invalid input test', () => {
-	//mock useAuth to return false
+jest.mock('../auth/useAuth', () => {
+	const originalModule = jest.requireActual('../auth/useAuth');
+	return {
+		__esModule: true,
+		...originalModule,
+		default: () => ({
+			isAuthenticated: false,
+			login: jest.fn,
+			logout: jest.fn
+		})
+	};
+});
 
+describe('Login invalid input test', () => {
 	it.each(invalidLoginEntries)(
 		'check combination for validity',
 		async (loginEntry) => {
@@ -41,8 +52,22 @@ describe('Login invalid input test', () => {
 	);
 });
 
+jest.resetAllMocks();
+jest.mock('../auth/useAuth', () => {
+	const originalModule = jest.requireActual('../auth/useAuth');
+	return {
+		__esModule: true,
+		...originalModule,
+		default: () => ({
+			accessToken: 'token',
+			isAuthenticated: true,
+			login: jest.fn,
+			logout: jest.fn
+		})
+	};
+});
+
 describe('Login valid input test', () => {
-	//mock useAuth to return true
 	it('valid input success', async () => {
 		render(
 			<MemoryRouter>

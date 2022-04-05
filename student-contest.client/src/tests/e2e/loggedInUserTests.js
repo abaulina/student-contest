@@ -1,11 +1,11 @@
 import { Selector } from 'testcafe';
-import { useCookies } from './auth';
+import { login } from './auth';
 import { validUser } from '../data/inputData';
 
 const pageUrl = 'http://localhost:3000/';
 
-fixture`Main page login`.page(pageUrl).beforeEach(async () => {
-	await useCookies();
+fixture`Main page login`.page(pageUrl).beforeEach(async (t) => {
+	await login(t);
 });
 
 test('auto login success then user greeting visible', async (t) => {
@@ -13,7 +13,7 @@ test('auto login success then user greeting visible', async (t) => {
 		.navigateTo(pageUrl)
 		.expect(Selector('p').innerText)
 		.eql(
-			'Nice to see you again, ' + validUser.firstName + ' ' + validUser.lastName
+			'Nice to see you again, ' + validUser.lastName + ' ' + validUser.firstName
 		);
 });
 
@@ -36,6 +36,6 @@ test('cannot navigate to login', async (t) => {
 		.navigateTo('../login')
 		.expect(Selector('p').innerText)
 		.eql(
-			'Nice to see you again, ' + validUser.firstName + ' ' + validUser.lastName
+			'Nice to see you again, ' + validUser.lastName + ' ' + validUser.firstName
 		);
 });

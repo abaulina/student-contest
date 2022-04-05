@@ -63,7 +63,7 @@ export async function sendRefreshRequest() {
 		});
 		if (response.ok) {
 			const data = await response.json();
-			return data;
+			return data.token;
 		} else throw new Error(response);
 	} catch (error) {
 		if (!error.status) error.status = 500;

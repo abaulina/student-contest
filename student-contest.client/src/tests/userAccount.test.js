@@ -4,26 +4,26 @@ import { render, screen } from '@testing-library/react';
 import UserAccount from '../user/userAccount';
 import configData from '../config.json';
 
+jest.mock('../auth/useAuth', () => {
+	const originalModule = jest.requireActual('../auth/useAuth');
+	return {
+		__esModule: true,
+		...originalModule,
+		default: () => ({
+			isAuthenticated: true,
+			accessToken: 'token',
+			login: jest.fn,
+			logout: jest.fn
+		})
+	};
+});
+
 it('renders without crashing', () => {
 	render(<UserAccount />);
 });
 
 it('renders with correct name', () => {
-	jest.mock('../auth/useAuth', () => {
-		const originalModule = jest.requireActual('../auth/useAuth');
-		return {
-			__esModule: true,
-			...originalModule,
-			default: () => ({
-				isAuthenticated: true,
-				accessToken: 'token',
-				login: jest.fn,
-				logout: jest.fn
-			})
-		};
-	});
-	// eslint-disable-next-line no-unused-vars
-	const scope = nock(configData.SERVER_URL, {
+	nock(configData.SERVER_URL, {
 		reqheaders: {
 			authorization: 'Bearer token'
 		}

@@ -1,5 +1,5 @@
 import { Selector } from 'testcafe';
-import { login } from './auth';
+import { login, generateEmail } from './auth';
 import { validUser, notUsedUser } from '../data/inputData';
 
 fixture`Main page`.page`http://localhost:3000`;
@@ -13,7 +13,7 @@ test('navigate to private route requires login success', async (t) => {
 	await t
 		.expect(Selector('p').innerText)
 		.eql(
-			'Nice to see you again, ' + validUser.firstName + ' ' + validUser.lastName
+			'Nice to see you again, ' + validUser.lastName + ' ' + validUser.firstName
 		);
 });
 
@@ -26,7 +26,7 @@ test('login page is displaying after logging out', async (t) => {
 	await t
 		.expect(Selector('p').innerText)
 		.eql(
-			'Nice to see you again, ' + validUser.firstName + ' ' + validUser.lastName
+			'Nice to see you again, ' + validUser.lastName + ' ' + validUser.firstName
 		)
 
 		.click(Selector('button').withText('Log out'))
@@ -39,6 +39,8 @@ test('sign up success then login success', async (t) => {
 	const lastNameInput = Selector('#floatingLastName');
 	const emailInput = Selector('#floatingEmail');
 	const passwordInput = Selector('#floatingPassword');
+
+	const newEmail = generateEmail();
 
 	await t
 		.click(Selector('a').withText('No account'))
@@ -59,9 +61,9 @@ test('sign up success then login success', async (t) => {
 
 		.expect(emailInput.exists)
 		.ok()
-		.typeText(emailInput, validUser.email)
+		.typeText(emailInput, newEmail)
 		.expect(emailInput.value)
-		.eql(validUser.email)
+		.eql(newEmail)
 
 		.expect(passwordInput.exists)
 		.ok()
@@ -73,8 +75,11 @@ test('sign up success then login success', async (t) => {
 		.expect(Selector('h3').innerText)
 		.eql('Thanks for signing up')
 
-		.click(Selector('a').withText('Log in'));
-	await login(t);
+		.click(Selector('a').withText('Log in'))
+		.typeText('#floatingEmail', newEmail)
+		.typeText('#floatingPassword', validUser.password)
+		.click(Selector('button').withText('Submit'));
+
 	await t.expect(Selector('p').innerText).contains('Nice to see you again,');
 });
 
@@ -103,7 +108,7 @@ test('impossible to register with duplicate email', async (t) => {
 
 		.expect(emailInput.exists)
 		.ok()
-		.typeText(emailInput, validUser.email) //поменять!
+		.typeText(emailInput, validUser.email)
 		.expect(emailInput.value)
 		.eql(validUser.email)
 
