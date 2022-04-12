@@ -1,5 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import {
+	unstable_HistoryRouter as HistoryRouter,
+	Route,
+	Routes,
+	Link
+} from 'react-router-dom';
 import cn from 'classnames';
 import { Toaster } from 'react-hot-toast';
 import { WrappedLogin } from './auth/login/login';
@@ -10,6 +15,7 @@ import { WrappedSignup } from './auth/signup/signup';
 import PrivatePage from './privatePage';
 import useAuth, { AuthProvider } from './auth/useAuth';
 import { WrappedUserAccount } from './user/userAccount';
+import history from './utilities/history';
 import logo from './assets/logo192.png';
 import './App.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.css';
@@ -17,7 +23,7 @@ import '../node_modules/bootstrap/dist/css/bootstrap.css';
 function App() {
 	return (
 		<AuthProvider>
-			<Router>
+			<HistoryRouter history={history}>
 				<Toaster position='top-right' />
 				<div className='App container-fluid'>
 					<NavBar />
@@ -33,7 +39,7 @@ function App() {
 						</Routes>
 					</div>
 				</div>
-			</Router>
+			</HistoryRouter>
 		</AuthProvider>
 	);
 }

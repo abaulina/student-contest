@@ -1,16 +1,15 @@
-// import { useNavigate } from 'react-router-dom';
+import history from '../utilities/history';
 
 function handleError(responseStatus) {
-	// const navigate = useNavigate();
 	switch (responseStatus) {
-		case 404: {
-			// navigate('/notfound');
+		case '404': {
+			history.push('/notfound');
 			break;
 		}
-		case 401:
+		case '401':
 			return false;
 		default: {
-			// navigate('/error');
+			history.push('/error');
 		}
 	}
 }

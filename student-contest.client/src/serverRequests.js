@@ -1,5 +1,5 @@
 import handleError from './errors/errorHandler';
-import configData from './config.json';
+import configData from './utilities/config.json';
 
 const url = configData.SERVER_URL;
 
@@ -14,10 +14,10 @@ export async function getUserInfo(accessToken) {
 		if (response.ok) {
 			const userInfo = await response.json();
 			return userInfo;
-		} else throw new Error(response);
+		} else throw new Error(response.status);
 	} catch (error) {
-		if (!error.status) error.status = 500;
-		handleError(error.status);
+		setSuitableErrorMessage(error);
+		handleError(error.message);
 	}
 }
 
@@ -45,10 +45,10 @@ export async function sendLoginRequest(loginCredentials) {
 		if (response.ok) {
 			const data = await response.json();
 			return data.token;
-		} else throw new Error(response);
+		} else throw new Error(response.status);
 	} catch (error) {
-		if (!error.status) error.status = 500;
-		handleError(error.status);
+		setSuitableErrorMessage(error);
+		handleError(error.message);
 	}
 }
 
@@ -64,10 +64,10 @@ export async function sendRefreshRequest() {
 		if (response.ok) {
 			const data = await response.json();
 			return data.token;
-		} else throw new Error(response);
+		} else throw new Error(response.status);
 	} catch (error) {
-		if (!error.status) error.status = 500;
-		handleError(error.status);
+		setSuitableErrorMessage(error);
+		handleError(error.message);
 	}
 }
 
@@ -83,9 +83,13 @@ function handleResponse(response) {
 	try {
 		if (response.ok) {
 			return true;
-		} else throw new Error(response);
+		} else throw new Error(response.status);
 	} catch (error) {
-		if (!error.status) error.status = 500;
-		handleError(error.status);
+		setSuitableErrorMessage(error);
+		handleError(error.message);
 	}
+}
+
+function setSuitableErrorMessage(error) {
+	if (!error.message || error.message.length > 3) error.message = '500';
 }

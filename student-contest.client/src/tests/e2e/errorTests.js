@@ -1,10 +1,28 @@
 import { Selector, RequestMock } from 'testcafe';
 import { login } from './auth';
-import configData from '../../config.json';
+import configData from '../../utilities/config.json';
 
 const url = configData.SERVER_URL + '/login';
-const mock404 = RequestMock().onRequestTo(url).respond(null, 404);
-const mock500 = RequestMock().onRequestTo(url).respond(null, 500);
+const mock404 = RequestMock()
+	.onRequestTo({
+		url: url,
+		method: 'POST'
+	})
+	.respond(null, 404, {
+		'Access-Control-Allow-Origin': 'http://localhost:3000',
+		'Access-Control-Allow-Credentials': true,
+		'Content-type': 'application/json; charset=utf-8'
+	});
+const mock500 = RequestMock()
+	.onRequestTo({
+		url: url,
+		method: 'POST'
+	})
+	.respond(null, 500, {
+		'Access-Control-Allow-Origin': 'http://localhost:3000',
+		'Access-Control-Allow-Credentials': true,
+		'Content-type': 'application/json; charset=utf-8'
+	});
 
 fixture`Main page`.page`http://localhost:3000`;
 
