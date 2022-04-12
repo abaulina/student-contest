@@ -19,10 +19,7 @@ test('auto login success then user greeting visible', async (t) => {
 });
 
 test('navigate to private route success', async (t) => {
-	await t
-		.navigateTo('../test')
-		.expect(Selector('p').innerText)
-		.eql('Some info');
+	await t.navigateTo('/test').expect(Selector('p').innerText).eql('Some info');
 });
 
 test('navigate to non-existing page error', async (t) => {
@@ -34,7 +31,7 @@ test('navigate to non-existing page error', async (t) => {
 
 test('cannot navigate to login', async (t) => {
 	await t
-		.navigateTo('../login')
+		.navigateTo('/login')
 		.expect(Selector('p').innerText)
 		.eql(
 			'Nice to see you again, ' + validUser.lastName + ' ' + validUser.firstName

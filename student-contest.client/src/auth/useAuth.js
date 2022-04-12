@@ -15,7 +15,7 @@ function useProvideAuth() {
 	);
 
 	useEffect(() => {
-		if (isAuthenticated) refreshToken();
+		refreshToken();
 	}, []);
 
 	const login = async (loginCredentials) => {

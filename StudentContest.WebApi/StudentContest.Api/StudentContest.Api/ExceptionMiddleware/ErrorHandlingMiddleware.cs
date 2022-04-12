@@ -44,6 +44,7 @@ namespace StudentContest.Api.ExceptionMiddleware
                 SecurityTokenException => (int)HttpStatusCode.Unauthorized,
                 KeyNotFoundException => (int)HttpStatusCode.NotFound,
                 ApiException => (int)HttpStatusCode.Unauthorized,
+                ArgumentException => (int)HttpStatusCode.Unauthorized,
                 _ => (int)HttpStatusCode.BadRequest
             };
 
