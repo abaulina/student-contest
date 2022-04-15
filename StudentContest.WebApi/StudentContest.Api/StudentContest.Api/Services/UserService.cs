@@ -113,7 +113,7 @@ namespace StudentContest.Api.Services
             var refreshToken = await _refreshTokenRepository.GetByRefreshToken(inputToken);
 
             if (refreshToken == null)
-                throw new KeyNotFoundException("Invalid refresh token");
+                throw new ApiException("Invalid refresh token");
             return refreshToken;
         }
     }

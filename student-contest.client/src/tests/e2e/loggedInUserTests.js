@@ -11,7 +11,6 @@ fixture`Main page login`.page(pageUrl).beforeEach(async (t) => {
 test('auto login success then user greeting visible', async (t) => {
 	await t
 		.navigateTo(pageUrl)
-		.wait(5000)
 		.expect(Selector('p').innerText)
 		.eql(
 			'Nice to see you again, ' + validUser.lastName + ' ' + validUser.firstName

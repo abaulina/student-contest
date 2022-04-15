@@ -7,8 +7,9 @@ const ProtectedRoute = ({ children }) => {
 	const location = useLocation();
 	const isAuthenticated = useAuth().isAuthenticated;
 
-	if (isAuthenticated)
-		return <Navigate to='/user' replace state={{ path: location.pathname }} />;
+	if (isAuthenticated && !location?.state?.path)
+		return <Navigate to='/user' replace />;
+	if (isAuthenticated) return <Navigate to={location.state.path} replace />;
 
 	return children;
 };

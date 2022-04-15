@@ -81,8 +81,9 @@ function Login() {
 		} else {
 			setCapsWarningShown((isCapsWarningShown) => !isCapsWarningShown);
 			setError(null);
-			if (location?.state?.path) navigate('/user');
-			else navigate(location.state.path);
+			if (!location?.state?.path) {
+				navigate('/user');
+			} else navigate(location.state.path);
 		}
 	};
 

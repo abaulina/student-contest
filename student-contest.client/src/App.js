@@ -8,7 +8,7 @@ import {
 import cn from 'classnames';
 import { Toaster } from 'react-hot-toast';
 import { WrappedLogin } from './auth/login/login';
-import Main from './main/mainPage';
+import { WrappedMain } from './main/mainPage';
 import NotFound from './errors/errorPages/notFound';
 import DefaultErrorPage from './errors/errorPages/default';
 import { WrappedSignup } from './auth/signup/signup';
@@ -29,7 +29,7 @@ function App() {
 					<NavBar />
 					<div className='auth-wrapper'>
 						<Routes>
-							<Route exact path='/' element={<Main />} />
+							<Route exact path='/' element={<WrappedMain />} />
 							<Route path='/login' element={<WrappedLogin />} />
 							<Route path='/signup' element={<WrappedSignup />} />
 							<Route path='/user' element={<WrappedUserAccount />} />
