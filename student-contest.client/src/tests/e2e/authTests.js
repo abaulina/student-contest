@@ -1,136 +1,99 @@
-import { Selector } from 'testcafe';
 import { login, generateEmail } from './auth';
 import { validUser, notUsedUser } from '../data/inputData';
+import {
+	UserAccountPage,
+	MainPage,
+	LoginPage,
+	SignupPage
+} from './pages/index';
 
 fixture`Main page`.page`http://localhost:3000`;
 
 test('navigate to private route requires login success', async (t) => {
-	await t
-		.navigateTo('../user')
-		.expect(Selector('h3').innerText)
-		.eql('Welcome Back');
+	await MainPage.navigateToUrl('../user');
+
+	await LoginPage.assertWelcomeMsgText();
 	await login(t);
-	await t
-		.expect(Selector('p').innerText)
-		.eql(
-			'Nice to see you again, ' + validUser.lastName + ' ' + validUser.firstName
-		);
+
+	await UserAccountPage.assertGreetingMsgText(validUser);
 });
 
 test('login page is displaying after logging out', async (t) => {
-	await t
-		.navigateTo('../user')
-		.expect(Selector('h3').innerText)
-		.eql('Welcome Back');
-	await login(t);
-	await t
-		.expect(Selector('p').innerText)
-		.eql(
-			'Nice to see you again, ' + validUser.lastName + ' ' + validUser.firstName
-		)
+	await MainPage.navigateToUrl('../user');
 
-		.click(Selector('button').withText('Log out'))
-		.expect(Selector('h3').innerText)
-		.eql('Welcome Back');
+	await LoginPage.assertWelcomeMsgText();
+	await login(t);
+
+	await UserAccountPage.assertGreetingMsgText(validUser);
+	await UserAccountPage.logOut();
+
+	await LoginPage.assertWelcomeMsgText();
 });
 
-test('sign up success then login success', async (t) => {
-	const firstNameInput = Selector('#floatingFirstName');
-	const lastNameInput = Selector('#floatingLastName');
-	const emailInput = Selector('#floatingEmail');
-	const passwordInput = Selector('#floatingPassword');
-
+test('sign up success then login success', async () => {
 	const newEmail = generateEmail();
 
-	await t
-		.click(Selector('a').withText('No account'))
-		.expect(Selector('h3').innerText)
-		.eql('Create account')
+	await LoginPage.clickNoAccountLink();
 
-		.expect(firstNameInput.exists)
-		.ok()
-		.typeText(firstNameInput, validUser.firstName)
-		.expect(firstNameInput.value)
-		.eql(validUser.firstName)
+	await SignupPage.assertCreateAccountMsgText();
 
-		.expect(lastNameInput.exists)
-		.ok()
-		.typeText(lastNameInput, validUser.lastName)
-		.expect(lastNameInput.value)
-		.eql(validUser.lastName)
+	await SignupPage.assertFirstNameInputExists();
+	await SignupPage.typeFirstName(validUser.firstName);
+	await SignupPage.assertFirstNameValue(validUser.firstName);
 
-		.expect(emailInput.exists)
-		.ok()
-		.typeText(emailInput, newEmail)
-		.expect(emailInput.value)
-		.eql(newEmail)
+	await SignupPage.assertLastNameInputExists();
+	await SignupPage.typeLastName(validUser.lastName);
+	await SignupPage.assertLastNameValue(validUser.lastName);
 
-		.expect(passwordInput.exists)
-		.ok()
-		.typeText(passwordInput, validUser.password)
-		.expect(passwordInput.value)
-		.eql(validUser.password)
+	await SignupPage.assertEmailInputExists();
+	await SignupPage.typeEmail(newEmail);
+	await SignupPage.assertEmailValue(newEmail);
 
-		.click('button.default')
-		.expect(Selector('h3').innerText)
-		.eql('Thanks for signing up')
+	await SignupPage.assertPasswordInputExists();
+	await SignupPage.typePassword(validUser.password);
+	await SignupPage.assertPasswordValue(validUser.password);
 
-		.click(Selector('a').withText('Log in'))
-		.typeText('#floatingEmail', newEmail)
-		.typeText('#floatingPassword', validUser.password)
-		.click(Selector('button').withText('Submit'));
+	await SignupPage.clickSignupButton();
+	await SignupPage.assertSignupSuccessMsgText();
 
-	await t.expect(Selector('p').innerText).contains('Nice to see you again,');
+	await SignupPage.clickGoToLoginButton();
+
+	await LoginPage.typeEmail(newEmail);
+	await LoginPage.typePassword(validUser.password);
+	await LoginPage.clickSubmitButton();
+
+	await UserAccountPage.assertGreetingMsgExists();
 });
 
-test('impossible to register with duplicate email', async (t) => {
-	const firstNameInput = Selector('#floatingFirstName');
-	const lastNameInput = Selector('#floatingLastName');
-	const emailInput = Selector('#floatingEmail');
-	const passwordInput = Selector('#floatingPassword');
+test('impossible to register with duplicate email', async () => {
+	await MainPage.clickSignupButton();
 
-	await t
-		.click(Selector('button').withText('Sign up'))
-		.expect(Selector('h3').innerText)
-		.eql('Create account')
+	await SignupPage.assertCreateAccountMsgText();
 
-		.expect(firstNameInput.exists)
-		.ok()
-		.typeText(firstNameInput, validUser.firstName)
-		.expect(firstNameInput.value)
-		.eql(validUser.firstName)
+	await SignupPage.assertFirstNameInputExists();
+	await SignupPage.typeFirstName(validUser.firstName);
+	await SignupPage.assertFirstNameValue(validUser.firstName);
 
-		.expect(lastNameInput.exists)
-		.ok()
-		.typeText(lastNameInput, validUser.lastName)
-		.expect(lastNameInput.value)
-		.eql(validUser.lastName)
+	await SignupPage.assertLastNameInputExists();
+	await SignupPage.typeLastName(validUser.lastName);
+	await SignupPage.assertLastNameValue(validUser.lastName);
 
-		.expect(emailInput.exists)
-		.ok()
-		.typeText(emailInput, validUser.email)
-		.expect(emailInput.value)
-		.eql(validUser.email)
+	await SignupPage.assertEmailInputExists();
+	await SignupPage.typeEmail(validUser.email);
+	await SignupPage.assertEmailValue(validUser.email);
 
-		.expect(passwordInput.exists)
-		.ok()
-		.typeText(passwordInput, validUser.password)
-		.expect(passwordInput.value)
-		.eql(validUser.password)
+	await SignupPage.assertPasswordInputExists();
+	await SignupPage.typePassword(validUser.password);
+	await SignupPage.assertPasswordValue(validUser.password);
 
-		.click('button.default')
-		.expect(Selector('.invalid-feedback').innerText)
-		.eql('Email is invalid');
+	await SignupPage.clickSignupButton();
+	await SignupPage.assertInvalidFeedback();
 });
 
-test('impossible to login with not used email', async (t) => {
-	const emailInput = Selector('#floatingEmail');
-	const passwordInput = Selector('#floatingPassword');
+test('impossible to login with not used email', async () => {
+	await LoginPage.typeEmail(notUsedUser.email);
+	await LoginPage.typePassword(notUsedUser.password);
 
-	await t
-		.typeText(emailInput, notUsedUser.email)
-		.typeText(passwordInput, notUsedUser.password)
-		.click(Selector('button').withText('Submit'))
-		.expect(Selector('.invalid-feedback').innerText)
-		.eql('Invalid email or password');
+	await LoginPage.clickSubmitButton();
+	await LoginPage.assertInvalidFeedback();
 });

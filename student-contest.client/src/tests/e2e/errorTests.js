@@ -1,5 +1,6 @@
-import { Selector, RequestMock } from 'testcafe';
+import { RequestMock } from 'testcafe';
 import { login } from './auth';
+import { MainPage, ErrorPage } from './pages';
 import configData from '../../utilities/config.json';
 
 const url = configData.SERVER_URL + '/login';
@@ -26,24 +27,20 @@ const mock500 = RequestMock()
 
 fixture`Main page`.page`http://localhost:3000`;
 
-test('navigate to non-existing page redirect to error page', async (t) => {
-	await t
-		.navigateTo('../smthStupid')
-		.expect(Selector('p').innerText)
-		.contains('removed')
-		.expect(Selector('a.not-found').innerText)
-		.eql('Take me back to the homepage');
+test('navigate to non-existing page redirect to error page', async () => {
+	await MainPage.navigateToUrl('../smthStupid');
+
+	await ErrorPage.assertError404MsgText();
+	await ErrorPage.assertGoToMainPageButtonText();
 });
 
 test.requestHooks(mock500)(
 	'server respond with error other than 404 redirect to error page',
 	async (t) => {
 		await login(t);
-		await t
-			.expect(Selector('p').innerText)
-			.contains('try again')
-			.expect(Selector('a.not-found').innerText)
-			.eql('Take me back to the homepage');
+
+		await ErrorPage.assertErrorDefaultMsgText();
+		await ErrorPage.assertGoToMainPageButtonText();
 	}
 );
 
@@ -51,10 +48,8 @@ test.requestHooks(mock404)(
 	'server respond with 404 redirect to not found page',
 	async (t) => {
 		await login(t);
-		await t
-			.expect(Selector('p').innerText)
-			.contains('removed')
-			.expect(Selector('a.not-found').innerText)
-			.eql('Take me back to the homepage');
+
+		await ErrorPage.assertError404MsgText();
+		await ErrorPage.assertGoToMainPageButtonText();
 	}
 );

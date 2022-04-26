@@ -104,12 +104,7 @@ export const validUser = {
 	lastName: 'User'
 };
 
-export const invalidLoginEntries = [
-	{ email: 'abc.test.com', password: '12345678' },
-	{ email: 'example@abc', password: 'pass$12D' },
-	{ email: 'jane@yahoo.com', password: 'passW34E' },
-	{ email: 'john_done@testing.com', password: 'Pa$$w0rd' }
-];
+export const invalidLoginEntry = { email: 'example@abc', password: 'pass$12D' };
 
 export const validLoginEntry = {
 	email: 'test@example.com',
