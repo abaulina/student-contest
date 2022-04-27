@@ -14,8 +14,9 @@ namespace StudentContest.Api.Services
         Task<AuthenticatedResponse> Login(LoginRequest loginRequest);
         Task Logout(string refreshToken);
         Task<User?> GetUserInfo(int userId);
-        Task Register(RegisterRequest registerRequest);
+        Task Register(RegisterRequest registerRequest, string role = "User");
         Task<AuthenticatedResponse> RefreshToken (string refreshToken);
+        Task<IEnumerable<User>> GetUsers();
     }
 
     public class UserService : IUserService
@@ -25,16 +26,14 @@ namespace StudentContest.Api.Services
         private readonly RefreshTokenValidator _refreshRefreshTokenValidator;
         private readonly IRegisterRequestValidator _registerRequestValidator;
         private readonly Authenticator _authenticator;
-        private readonly ILogger _logger;
 
-        public UserService(RefreshTokenValidator refreshRefreshTokenValidator, IRefreshTokenRepository refreshTokenRepository, Authenticator authenticator, IUserManagerWrapper userManagerWrapper, IRegisterRequestValidator registerRequestValidator, ILogger logger)
+        public UserService(RefreshTokenValidator refreshRefreshTokenValidator, IRefreshTokenRepository refreshTokenRepository, Authenticator authenticator, IUserManagerWrapper userManagerWrapper, IRegisterRequestValidator registerRequestValidator)
         {
             _refreshRefreshTokenValidator = refreshRefreshTokenValidator;
             _refreshTokenRepository = refreshTokenRepository;
             _authenticator = authenticator;
             _userManagerWrapper = userManagerWrapper;
             _registerRequestValidator = registerRequestValidator;
-            _logger = logger;
         }
 
         public async Task<AuthenticatedResponse> Login(LoginRequest loginRequest)
@@ -44,8 +43,9 @@ namespace StudentContest.Api.Services
             var isPasswordCorrect = await _userManagerWrapper.CheckPasswordAsync(user, loginRequest.Password);
             if (user == null || !isPasswordCorrect)
                 throw new InvalidCredentialException("Email or password is incorrect");
-            
-            var response = await _authenticator.Authenticate(user);
+
+            var userRoles = await _userManagerWrapper.GetRolesAsync(user);
+            var response = await _authenticator.Authenticate(user, userRoles);
             return response;
         }
 
@@ -61,7 +61,7 @@ namespace StudentContest.Api.Services
             return await GetUser(userId);
         }
 
-        public async Task Register(RegisterRequest registerRequest)
+        public async Task Register(RegisterRequest registerRequest, string role = "User")
         {
             _registerRequestValidator.ValidateUserPersonalData(registerRequest);
             var newUser = new User {Email = registerRequest.Email, FirstName = registerRequest.FirstName, LastName = registerRequest.LastName, UserName  = registerRequest.Email};
@@ -82,6 +82,8 @@ namespace StudentContest.Api.Services
 
                 throw new DbUpdateException();
             }
+
+            await _userManagerWrapper.AddToRoleAsync(newUser, role);
         }
 
         public async Task<AuthenticatedResponse> RefreshToken(string token)
@@ -91,9 +93,15 @@ namespace StudentContest.Api.Services
             await _refreshTokenRepository.Delete(refreshToken.Id);
 
             var user = await GetUser(refreshToken.UserId);
-            
-            var response = await _authenticator.Authenticate(user);
+            var userRoles = await _userManagerWrapper.GetRolesAsync(user);
+
+            var response = await _authenticator.Authenticate(user, userRoles);
             return response;
+        }
+
+        public async Task<IEnumerable<User>> GetUsers()
+        {
+            return await _userManagerWrapper.FindAllAsync();
         }
 
         private async Task<User?> GetUser(int id)

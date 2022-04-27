@@ -20,7 +20,7 @@ namespace StudentContest.Api.Controllers
             _userService = userService;
         }
 
-        [Authorize]
+        [Authorize(Roles = "User")]
         [HttpGet]
         public async Task<ActionResult<User>> GetUser()
         {
@@ -34,10 +34,25 @@ namespace StudentContest.Api.Controllers
             return Ok(userInfo);
         }
 
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public async Task<ActionResult<User>> GetAllUsers()
+        {
+            var users = await _userService.GetUsers();
+            return Ok(users);
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterRequest registerRequest)
         {
             await _userService.Register(registerRequest);
+            return Ok();
+        }
+
+        [HttpPost("register-admin")]
+        public async Task<IActionResult> RegisterAdmin([FromBody] RegisterRequest registerRequest)
+        {
+            await _userService.Register(registerRequest, "Admin");
             return Ok();
         }
 

@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using StudentContest.Api.Auth;
@@ -30,7 +31,9 @@ builder.Services.AddIdentityCore<User>(u =>
         u.Password.RequireNonAlphanumeric = false;
         u.Password.RequireLowercase = false;
     }
-).AddEntityFrameworkStores<AuthenticationContext>();
+)
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<AuthenticationContext>();
 
 
 var authenticationConfiguration = new AuthenticationConfiguration();

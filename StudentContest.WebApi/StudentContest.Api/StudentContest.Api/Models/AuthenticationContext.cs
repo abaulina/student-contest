@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace StudentContest.Api.Models
 {
@@ -15,6 +16,17 @@ namespace StudentContest.Api.Models
                 .Entity<User>()
                 .Property(e => e.Id)
                 .ValueGeneratedOnAdd();
+            modelBuilder
+                .Entity<IdentityRole>()
+                .HasData(new IdentityRole
+                {
+                    Name = "User",
+                    NormalizedName = "USER"
+                }, new IdentityRole
+                {
+                    Name = "Admin",
+                    NormalizedName = "ADMIN"
+                });
         }
 
         public DbSet<User> Users { get; set; } = null!;

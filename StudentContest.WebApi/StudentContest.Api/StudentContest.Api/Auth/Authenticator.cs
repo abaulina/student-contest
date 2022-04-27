@@ -15,9 +15,9 @@ namespace StudentContest.Api.Auth
             _refreshTokenRepository = refreshTokenRepository;
         }
 
-        public async Task<AuthenticatedResponse> Authenticate(User user)
+        public async Task<AuthenticatedResponse> Authenticate(User user, IList<string> roles)
         {
-            var accessToken = _tokenGenerator.GenerateJwtToken(user);
+            var accessToken = _tokenGenerator.GenerateJwtToken(user, roles);
             var refreshToken = _tokenGenerator.GenerateRefreshToken();
 
             var refreshTokenDto = new RefreshToken

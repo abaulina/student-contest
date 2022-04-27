@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security.Authentication;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
@@ -41,6 +42,16 @@ namespace StudentContest.Api.Tests.UnitTests
         public async Task<User?> FindByIdAsync(int id)
         {
             return await _context.Users.FindAsync(id);
+        }
+
+        public Task<IEnumerable<User>> FindAllAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IdentityResult> AddToRoleAsync(User user, string roleName)
+        {
+            throw new NotImplementedException();
         }
     }
 }

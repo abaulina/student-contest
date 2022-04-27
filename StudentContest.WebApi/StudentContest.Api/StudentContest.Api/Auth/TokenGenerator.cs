@@ -8,7 +8,7 @@ namespace StudentContest.Api.Auth
 {
     public interface ITokenGenerator
     {
-        public string GenerateJwtToken(User user);
+        public string GenerateJwtToken(User user, IList<string> userRoles);
         public string GenerateRefreshToken();
     }
     
@@ -21,12 +21,13 @@ namespace StudentContest.Api.Auth
             _authenticationConfiguration = authenticationConfiguration;
         }
 
-        public string GenerateJwtToken(User user)
+        public string GenerateJwtToken(User user, IList<string> roles)
         {
             var claims = new List<Claim>
             {
                 new("id", user.Id.ToString())
             };
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var expirationTime = DateTime.UtcNow.AddMinutes(_authenticationConfiguration.AccessTokenExpirationMinutes);
             return GenerateToken(
