@@ -35,8 +35,8 @@ namespace StudentContest.Api.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpGet]
-        public async Task<ActionResult<User>> GetAllUsers()
+        [HttpGet("all")]
+        public async Task<ActionResult<IEnumerable<User>>> GetAllUsers()
         {
             var users = await _userService.GetUsers();
             return Ok(users);

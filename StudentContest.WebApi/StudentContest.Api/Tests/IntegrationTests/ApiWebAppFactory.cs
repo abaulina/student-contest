@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,21 +11,21 @@ using StudentContest.Api.Tests.Helpers;
 
 namespace StudentContest.Api.Tests.IntegrationTests
 {
-    public class ApiWebAppFactory<TEntryPoint> : WebApplicationFactory<Program> where TEntryPoint : Program
+    public class ApiWebAppFactory : WebApplicationFactory<Program>
     {
         private readonly LoggerFake _loggerFake = new();
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.ConfigureServices(services =>
+            builder.ConfigureServices(async services =>
             {
                 var defaultILogger = services.SingleOrDefault(d => d.ServiceType == typeof(ILogger));
                 var descriptor = services.SingleOrDefault(
                     d => d.ServiceType ==
                          typeof(DbContextOptions<AuthenticationContext>));
 
-                services.Remove(descriptor);
-                services.Remove(defaultILogger);
+                services.Remove(descriptor!);
+                services.Remove(defaultILogger!);
 
                 services.AddSingleton<ILogger>(_loggerFake);
 
@@ -36,10 +37,13 @@ namespace StudentContest.Api.Tests.IntegrationTests
                 var sp = services.BuildServiceProvider();
                 using var scope = sp.CreateScope();
                 using var authenticationContext = scope.ServiceProvider.GetRequiredService<AuthenticationContext>();
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+
                 try
                 {
                     authenticationContext.Database.EnsureCreated();
-                    Utilities.InitializeDbForTests(authenticationContext);
+                    await Utilities.InitializeDbForIntegrationTests(authenticationContext, userManager, roleManager);
                 }
                 catch (Exception ex)
                 {

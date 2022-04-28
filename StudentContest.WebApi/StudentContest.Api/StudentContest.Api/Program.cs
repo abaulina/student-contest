@@ -32,7 +32,7 @@ builder.Services.AddIdentityCore<User>(u =>
         u.Password.RequireLowercase = false;
     }
 )
-    .AddRoles<IdentityRole>()
+    .AddRoles<IdentityRole<int>>()
     .AddEntityFrameworkStores<AuthenticationContext>();
 
 

@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using StudentContest.Api.Models;
 
@@ -13,6 +16,22 @@ namespace StudentContest.Api.Tests.Helpers
             db.Users.AddRange(Seed());
             db.RefreshTokens.AddRange(SeedRefreshTokens());
             db.SaveChanges();
+        }
+
+        public static async Task InitializeDbForIntegrationTests(AuthenticationContext db,
+            UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
+        {
+            await roleManager.CreateAsync(new IdentityRole<int>("Admin"));
+            await roleManager.CreateAsync(new IdentityRole<int>("User"));
+
+            var users = Seed();
+            await AddToUserRole(users, userManager);
+            await userManager.AddToRoleAsync(users.Last(), "Admin");
+
+            db.Users.AddRange(users);
+            db.RefreshTokens.AddRange(SeedRefreshTokens());
+
+            await db.SaveChangesAsync();
         }
 
         public static StringContent GetStringContent(object obj)
@@ -39,6 +58,12 @@ namespace StudentContest.Api.Tests.Helpers
                 }
             };
             return users;
+        }
+
+        private static async Task AddToUserRole(IEnumerable<User> users, UserManager<User> userManager)
+        {
+            foreach(var user in users)
+                await userManager.AddToRoleAsync(user, "User");
         }
 
         private static IEnumerable<RefreshToken> SeedRefreshTokens()

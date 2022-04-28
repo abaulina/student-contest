@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace StudentContest.Api.Models
 {
-    public class AuthenticationContext: DbContext
+    public class AuthenticationContext: IdentityDbContext<User, IdentityRole<int>, int>
     {
         public AuthenticationContext(DbContextOptions<AuthenticationContext> options)
             : base(options)
@@ -12,6 +13,7 @@ namespace StudentContest.Api.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder
                 .Entity<User>()
                 .Property(e => e.Id)

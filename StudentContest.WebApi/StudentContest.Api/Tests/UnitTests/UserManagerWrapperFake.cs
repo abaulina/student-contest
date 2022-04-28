@@ -44,14 +44,19 @@ namespace StudentContest.Api.Tests.UnitTests
             return await _context.Users.FindAsync(id);
         }
 
-        public Task<IEnumerable<User>> FindAllAsync()
+        public async Task<IEnumerable<User>> FindAllAsync()
         {
-            throw new NotImplementedException();
+            return await _context.Users.ToListAsync();
         }
 
         public Task<IdentityResult> AddToRoleAsync(User user, string roleName)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(IdentityResult.Success);
+        }
+
+        public Task<IList<string>> GetRolesAsync(User user)
+        {
+            return Task.FromResult<IList<string>>(new List<string> {"User"});
         }
     }
 }
