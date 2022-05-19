@@ -20,7 +20,15 @@ namespace StudentContest.Api.Controllers
             _userService = userService;
         }
 
-        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Admin")]
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<User>> GetUserById(int id)
+        {
+            var userInfo = await _userService.GetUserInfo(id);
+            return Ok(userInfo);
+        }
+
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<User>> GetUser()
         {
@@ -42,55 +50,19 @@ namespace StudentContest.Api.Controllers
             return Ok(users);
         }
 
-        [HttpPost("register")]
+        [HttpPost]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterRequest registerRequest)
         {
-            await _userService.Register(registerRequest);
-            return Ok();
+            var user = await _userService.Register(registerRequest);
+            return CreatedAtAction(nameof(GetUser), user);
         }
 
-        [HttpPost("register-admin")]
+        [Authorize(Roles = "Admin")]
+        [HttpPost("admin")]
         public async Task<IActionResult> RegisterAdmin([FromBody] RegisterRequest registerRequest)
         {
-            await _userService.Register(registerRequest, "Admin");
-            return Ok();
-        }
-
-        [HttpDelete("logout")]
-        public async Task<IActionResult> Logout()
-        {
-            var refreshToken = Request.Cookies["refreshToken"];
-            await _userService.Logout(refreshToken);
-            return Ok();
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
-        {
-            var response = await _userService.Login(loginRequest);
-            SetTokenCookie(response.RefreshToken);
-            return Ok(response);
-        }
-
-        [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshToken()
-        {
-            var refreshToken = Request.Cookies["refreshToken"];
-            var response = await _userService.RefreshToken(refreshToken);
-            SetTokenCookie(response.RefreshToken);
-            return Ok(response);
-        }
-
-        private void SetTokenCookie(string token)
-        {
-            var cookieOptions = new CookieOptions
-            {
-                HttpOnly = true,
-                Expires = DateTime.UtcNow.AddDays(7),
-                SameSite = SameSiteMode.None,
-                Secure = true
-            };
-            Response.Cookies.Append("refreshToken", token, cookieOptions);
+            var admin = await _userService.Register(registerRequest, "Admin");
+            return CreatedAtAction(nameof(GetUser), admin);
         }
     }
 }

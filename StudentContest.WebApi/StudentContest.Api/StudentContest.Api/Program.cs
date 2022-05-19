@@ -7,12 +7,14 @@ using StudentContest.Api.Auth;
 using StudentContest.Api.ExceptionMiddleware;
 using StudentContest.Api.Models;
 using StudentContest.Api.Services;
+using StudentContest.Api.Services.NoteRepository;
 using StudentContest.Api.Services.RefreshTokenRepository;
 using StudentContest.Api.Validation;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AuthenticationContext>(opt =>
+builder.Services.AddDbContext<ApplicationContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("Sqlite")));
 
 builder.Services.AddCors(options => options.AddPolicy("ApiCorsPolicy", corsPolicyBuilder =>
@@ -22,6 +24,14 @@ builder.Services.AddCors(options => options.AddPolicy("ApiCorsPolicy", corsPolic
         .AllowCredentials();
 }));
 builder.Services.AddControllers().AddNewtonsoftJson();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Description = "An ASP.NET Core Web API",
+    });
+});
 builder.Services.AddIdentityCore<User>(u =>
     {
         u.Password.RequiredLength = 8;
@@ -33,7 +43,7 @@ builder.Services.AddIdentityCore<User>(u =>
     }
 )
     .AddRoles<IdentityRole<int>>()
-    .AddEntityFrameworkStores<AuthenticationContext>();
+    .AddEntityFrameworkStores<ApplicationContext>();
 
 
 var authenticationConfiguration = new AuthenticationConfiguration();
@@ -45,9 +55,14 @@ builder.Services.AddSingleton<ITokenGenerator, TokenGenerator>();
 builder.Services.AddSingleton<RefreshTokenValidator>();
 builder.Services.AddScoped<Authenticator>();
 builder.Services.AddScoped<IRegisterRequestValidator, RegisterRequestValidator>();
+builder.Services.AddScoped<INoteValidator, NoteValidator>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IUserRolesService, UserRolesService>();
 builder.Services.AddScoped<IRefreshTokenRepository, DatabaseRefreshTokenRepository>();
+builder.Services.AddScoped<INoteRepository, DatabaseNoteRepository>();
 builder.Services.AddScoped<IUserManagerWrapper, UserManagerWrapper>();
+builder.Services.AddScoped<IRoleManagerWrapper, RoleManagerWrapper>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>
@@ -68,7 +83,7 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<AuthenticationContext>();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
     if (!context.Database.IsInMemory())
         context.Database.Migrate();
 }
@@ -76,6 +91,12 @@ using (var scope = app.Services.CreateScope())
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+        options.RoutePrefix = string.Empty;
+    });
 }
 
 app.UseHttpsRedirection();

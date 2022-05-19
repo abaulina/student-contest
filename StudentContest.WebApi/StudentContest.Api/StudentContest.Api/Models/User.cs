@@ -6,5 +6,6 @@ namespace StudentContest.Api.Models
     {
         public string FirstName { get; set; }
         public string LastName { get; set; }
+        public List<UserNote> UserNotes { get; set; }
     }
 }

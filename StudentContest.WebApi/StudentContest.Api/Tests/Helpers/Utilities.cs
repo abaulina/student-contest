@@ -11,14 +11,14 @@ namespace StudentContest.Api.Tests.Helpers
 {
     internal class Utilities
     {
-        public static void InitializeDbForTests(AuthenticationContext db)
+        public static void InitializeDbForTests(ApplicationContext db)
         {
             db.Users.AddRange(Seed());
             db.RefreshTokens.AddRange(SeedRefreshTokens());
             db.SaveChanges();
         }
 
-        public static async Task InitializeDbForIntegrationTests(AuthenticationContext db,
+        public static async Task InitializeDbForIntegrationTests(ApplicationContext db,
             UserManager<User> userManager, RoleManager<IdentityRole<int>> roleManager)
         {
             await roleManager.CreateAsync(new IdentityRole<int>("Admin"));

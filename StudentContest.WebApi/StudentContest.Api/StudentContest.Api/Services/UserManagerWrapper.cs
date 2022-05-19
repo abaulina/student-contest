@@ -9,10 +9,12 @@ namespace StudentContest.Api.Services
         Task<User?> FindByEmailAsync(string email);
         Task<bool> CheckPasswordAsync(User user, string password);
         Task<IdentityResult> CreateAsync(User user, string password);
-        Task<User?> FindByIdAsync(int id);
-        Task<IEnumerable<User>> FindAllAsync();
-        Task<IdentityResult> AddToRoleAsync(User user, string roleName);
-        Task<IList<string>> GetRolesAsync(User user);
+        Task<User?> GetUserInfoAsync(int id);
+        Task<IEnumerable<User>> GetUsersAsync();
+        Task<IdentityResult> AddToRoleAsync(int userId, string roleName);
+        Task<IList<string>> GetUserRolesAsync(int userId);
+        Task<IList<UserRoles>> GetRolesAsync();
+        Task <IdentityResult> RemoveFromRoleAsync(int userId, string roleName);
     }
 
     public class UserManagerWrapper : IUserManagerWrapper
@@ -39,25 +41,57 @@ namespace StudentContest.Api.Services
             return await _userManager.CreateAsync(user, password);
         }
 
-        public async Task<User?> FindByIdAsync(int id)
+        public async Task<User?> GetUserInfoAsync(int id)
         {
-            return await _userManager.FindByIdAsync(id.ToString());
+            var user = await GetUserAsync(id);
+            return new User
+            {
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Id = user.Id
+            };
         }
 
-        public async Task<IEnumerable<User>> FindAllAsync()
+        public async Task<IEnumerable<User>> GetUsersAsync()
         {
             return await _userManager.Users.Select(u => new User
                 {Email = u.Email, FirstName = u.FirstName, LastName = u.LastName, Id = u.Id}).ToListAsync();
         }
 
-        public async Task<IdentityResult> AddToRoleAsync(User user, string roleName)
+        public async Task<IdentityResult> AddToRoleAsync(int userId, string roleName)
         {
+            var user = await GetUserAsync(userId);
             return await _userManager.AddToRoleAsync(user, roleName);
         }
 
-        public async Task<IList<string>> GetRolesAsync(User user)
+        public async Task<IList<string>> GetUserRolesAsync(int userId)
         {
+            var user = await GetUserAsync(userId);
             return await _userManager.GetRolesAsync(user);
+        }
+
+        public async Task<IList<UserRoles>> GetRolesAsync()
+        {
+            return await _userManager.Users.Select(c => new UserRoles()
+            {
+                User = c,
+                Roles = new List<string>(_userManager.GetRolesAsync(c).Result.ToList())
+            }).ToListAsync();
+        }
+
+        public async Task<IdentityResult> RemoveFromRoleAsync(int userId, string roleName)
+        {
+            var user = await GetUserAsync(userId);
+            return await _userManager.RemoveFromRoleAsync(user, roleName);
+        }
+
+        private async Task<User> GetUserAsync(int userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+                throw new KeyNotFoundException();
+            return user;
         }
     }
 }

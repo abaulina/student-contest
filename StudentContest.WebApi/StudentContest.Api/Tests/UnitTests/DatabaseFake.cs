@@ -7,18 +7,18 @@ namespace StudentContest.Api.Tests.UnitTests
 {
     internal class DatabaseFake: IDisposable
     {
-        private readonly AuthenticationContext _context;
+        private readonly ApplicationContext _context;
 
         public DatabaseFake()
         {
-            var options = new DbContextOptionsBuilder<AuthenticationContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
-            _context = new AuthenticationContext(options);
+            var options = new DbContextOptionsBuilder<ApplicationContext>().UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()).Options;
+            _context = new ApplicationContext(options);
             _context.Database.EnsureDeleted();
             _context.Database.EnsureCreated();
             Utilities.InitializeDbForTests(_context);
         }
 
-        public AuthenticationContext GetContext()
+        public ApplicationContext GetContext()
         {
             return _context;
         }

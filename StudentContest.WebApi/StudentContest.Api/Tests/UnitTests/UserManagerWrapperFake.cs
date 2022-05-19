@@ -11,9 +11,9 @@ namespace StudentContest.Api.Tests.UnitTests
 {
     internal class TestUserManagerWrapper : IUserManagerWrapper
     {
-        private readonly AuthenticationContext _context;
+        private readonly ApplicationContext _context;
 
-        public TestUserManagerWrapper(AuthenticationContext context)
+        public TestUserManagerWrapper(ApplicationContext context)
         {
             _context = context;
         }
@@ -39,12 +39,21 @@ namespace StudentContest.Api.Tests.UnitTests
             return IdentityResult.Success;
         }
 
-        public async Task<User?> FindByIdAsync(int id)
+        public async Task<User?> GetUserAsync(int id)
         {
-            return await _context.Users.FindAsync(id);
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                throw new KeyNotFoundException();
+            return new User
+            {
+                Email = user.Email,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Id = user.Id
+            };
         }
 
-        public async Task<IEnumerable<User>> FindAllAsync()
+        public async Task<IEnumerable<User>> GetUsersAsync()
         {
             return await _context.Users.ToListAsync();
         }
@@ -57,6 +66,11 @@ namespace StudentContest.Api.Tests.UnitTests
         public Task<IList<string>> GetRolesAsync(User user)
         {
             return Task.FromResult<IList<string>>(new List<string> {"User"});
+        }
+
+        public Task<IdentityResult> RemoveFromRoleAsync(User user, string roleName)
+        {
+            return Task.FromResult(IdentityResult.Success);
         }
     }
 }

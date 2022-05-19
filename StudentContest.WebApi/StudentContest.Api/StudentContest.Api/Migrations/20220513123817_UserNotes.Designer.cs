@@ -11,8 +11,8 @@ using StudentContest.Api.Models;
 namespace StudentContest.Api.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20220428121637_RoleIntKey")]
-    partial class RoleIntKey
+    [Migration("20220513123817_UserNotes")]
+    partial class UserNotes
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -40,15 +40,15 @@ namespace StudentContest.Api.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "27dca796-8e41-40f1-ae44-1c66d69446cd",
-                            ConcurrencyStamp = "b63dfc14-e2f3-4403-8c89-73317731d9e1",
+                            Id = "8664175f-916f-447c-a1a7-a2c2016110bc",
+                            ConcurrencyStamp = "ad0673c6-8f76-4f20-b143-9b0d3c96a151",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
-                            Id = "bf106284-9d37-40ae-9233-1df0338b8567",
-                            ConcurrencyStamp = "75b38b77-606f-46fd-9f15-2acf2a8503c5",
+                            Id = "00edc77d-437d-4e08-b31d-c1cf8aac9e39",
+                            ConcurrencyStamp = "8838206d-fc24-41bd-a682-39568cd1dfab",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -180,6 +180,24 @@ namespace StudentContest.Api.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("StudentContest.Api.Models.Note", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notes");
+                });
+
             modelBuilder.Entity("StudentContest.Api.Models.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
@@ -271,6 +289,24 @@ namespace StudentContest.Api.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("StudentContest.Api.Models.UserNote", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("NoteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("UserId", "NoteId");
+
+                    b.HasIndex("NoteId");
+
+                    b.ToTable("UserNote");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<int>", null)
@@ -320,6 +356,35 @@ namespace StudentContest.Api.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("StudentContest.Api.Models.UserNote", b =>
+                {
+                    b.HasOne("StudentContest.Api.Models.Note", "Note")
+                        .WithMany("UserNotes")
+                        .HasForeignKey("NoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("StudentContest.Api.Models.User", "User")
+                        .WithMany("UserNotes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Note");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("StudentContest.Api.Models.Note", b =>
+                {
+                    b.Navigation("UserNotes");
+                });
+
+            modelBuilder.Entity("StudentContest.Api.Models.User", b =>
+                {
+                    b.Navigation("UserNotes");
                 });
 #pragma warning restore 612, 618
         }
