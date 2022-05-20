@@ -7,8 +7,8 @@ namespace StudentContest.Api.Models
 {
     public static class JsonPatchDocumentExtensions
     {
-        public static void ApplyToSafely(this JsonPatchDocument<Note> patchDoc,
-            Note objectToApplyTo, INoteValidator noteValidator)
+        public static async Task ApplyToSafely(this JsonPatchDocument<Note?> patchDoc,
+            Note? objectToApplyTo, INoteValidator noteValidator)
         {
             if (patchDoc == null) throw new ArgumentNullException(nameof(patchDoc));
             if (objectToApplyTo == null) throw new ArgumentNullException(nameof(objectToApplyTo));
@@ -28,7 +28,7 @@ namespace StudentContest.Api.Models
                         }
                     case "Id":
                     {
-                        noteValidator.ValidateId((int)op.value);
+                        await noteValidator.ValidateId((int)op.value);
                         break;
                     }
                     case "Text":

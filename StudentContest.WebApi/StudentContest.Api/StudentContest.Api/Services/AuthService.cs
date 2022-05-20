@@ -37,7 +37,7 @@ namespace StudentContest.Api.Services
             if (user == null || !isPasswordCorrect)
                 throw new InvalidCredentialException("Email or password is incorrect");
 
-            var userRoles = await _userManagerWrapper.GetUserRolesAsync(user);
+            var userRoles = await _userManagerWrapper.GetUserRolesAsync(user.Id);
             var response = await _authenticator.Authenticate(user, userRoles);
             return response;
         }
@@ -55,8 +55,8 @@ namespace StudentContest.Api.Services
 
             await _refreshTokenRepository.Delete(refreshToken.Id);
 
-            var user = await _userManagerWrapper.GetUserAsync(refreshToken.UserId);
-            var userRoles = await _userManagerWrapper.GetUserRolesAsync(user);
+            var user = await _userManagerWrapper.GetUserInfoAsync(refreshToken.UserId);
+            var userRoles = await _userManagerWrapper.GetUserRolesAsync(user.Id);
 
             var response = await _authenticator.Authenticate(user, userRoles);
             return response;

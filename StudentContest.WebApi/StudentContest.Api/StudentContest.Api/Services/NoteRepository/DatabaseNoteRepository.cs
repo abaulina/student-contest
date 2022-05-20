@@ -20,25 +20,31 @@ namespace StudentContest.Api.Services.NoteRepository
             return note;
         }
 
-        public async Task<Note> AddNoteAsync(Note note)
+        public async Task<Note?> FindByIdAsync(int id)
+        {
+            var note = await _applicationContext.Notes.FindAsync(id);
+            return note;
+        }
+
+        public async Task<Note?> AddNoteAsync(Note? note)
         {
             _applicationContext.Notes.Add(note);
             await _applicationContext.SaveChangesAsync();
             return note;
         }
 
-        public async Task DeleteNoteAsync(Note note)
+        public async Task DeleteNoteAsync(Note? note)
         {
             _applicationContext.Notes.Remove(note);
             await _applicationContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<Note>> GetAllNotesAsync()
+        public async Task<IEnumerable<Note?>> GetAllNotesAsync()
         {
             return await _applicationContext.Notes.ToListAsync();
         }
 
-        public async Task<IEnumerable<Note>> GetPublicNotesAsync()
+        public async Task<IEnumerable<Note?>> GetPublicNotesAsync()
         {
             return await _applicationContext.Notes.Where(n => n.Status==NoteStatus.Public).ToListAsync();
         }

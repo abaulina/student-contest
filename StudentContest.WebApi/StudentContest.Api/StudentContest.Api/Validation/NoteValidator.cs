@@ -7,8 +7,8 @@ namespace StudentContest.Api.Validation
 {
     public interface INoteValidator
     {
-        public void ValidateNote(Note note);
-        public void ValidateId(int id);
+        Task ValidateNote(Note? note);
+        Task ValidateId(int id);
         public void ValidateStatus(object status);
         public void ValidateText(string text);
     }
@@ -22,16 +22,16 @@ namespace StudentContest.Api.Validation
             _noteRepository = noteRepository;
         }
         
-        public void ValidateNote(Note note)
+        public async Task ValidateNote(Note? note)
         {
-            ValidateId(note.Id);
+            await ValidateId(note.Id);
             ValidateText(note.Text);
             ValidateStatus(note.Status);
         }
 
-        public void ValidateId(int id)
+        public async Task ValidateId(int id)
         {
-            var note = _noteRepository.GetNoteAsync(id);
+            var note = await _noteRepository.FindByIdAsync(id);
             if (note != null)
                 throw new ApiException("The same id already exists!");
         }
@@ -47,7 +47,7 @@ namespace StudentContest.Api.Validation
             var isValid = status switch
             {
                 NoteStatus _ => Enum.IsDefined(typeof(NoteStatus), status),
-                string s => Enum.IsDefined(typeof(NoteStatus), int.Parse(s)),
+                string s => Enum.IsDefined(typeof(NoteStatus), (s)),
                 _ => false
             };
             if(!isValid)

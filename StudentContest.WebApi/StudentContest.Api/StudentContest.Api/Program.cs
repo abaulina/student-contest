@@ -58,6 +58,8 @@ builder.Services.AddScoped<IRegisterRequestValidator, RegisterRequestValidator>(
 builder.Services.AddScoped<INoteValidator, NoteValidator>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IAuthService,AuthService>();
+builder.Services.AddScoped<INoteService, NoteService>();
 builder.Services.AddScoped<IUserRolesService, UserRolesService>();
 builder.Services.AddScoped<IRefreshTokenRepository, DatabaseRefreshTokenRepository>();
 builder.Services.AddScoped<INoteRepository, DatabaseNoteRepository>();

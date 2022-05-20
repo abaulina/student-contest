@@ -39,7 +39,7 @@ namespace StudentContest.Api.Tests.UnitTests
             return IdentityResult.Success;
         }
 
-        public async Task<User?> GetUserAsync(int id)
+        public async Task<User?> GetUserInfoAsync(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null)
@@ -58,17 +58,22 @@ namespace StudentContest.Api.Tests.UnitTests
             return await _context.Users.ToListAsync();
         }
 
-        public Task<IdentityResult> AddToRoleAsync(User user, string roleName)
+        public Task<IdentityResult> AddToRoleAsync(int userId, string roleName)
         {
             return Task.FromResult(IdentityResult.Success);
         }
 
-        public Task<IList<string>> GetRolesAsync(User user)
+        public Task<IList<string>> GetUserRolesAsync(int userId)
         {
-            return Task.FromResult<IList<string>>(new List<string> {"User"});
+            return Task.FromResult<IList<string>>(new List<string> { "User" });
         }
 
-        public Task<IdentityResult> RemoveFromRoleAsync(User user, string roleName)
+        public Task<IList<UserRoles>> GetRolesAsync()
+        {
+            return Task.FromResult<IList<UserRoles>>(new List<UserRoles>());
+        }
+
+        public Task<IdentityResult> RemoveFromRoleAsync(int userId, string roleName)
         {
             return Task.FromResult(IdentityResult.Success);
         }

@@ -7,13 +7,13 @@ namespace StudentContest.Api.Services
 {
     public interface INoteService
     {
-        Task<Note> Add(Note note);
+        Task<Note?> Add(Note? note);
         Task Edit(int id, JsonPatchDocument<Note> notePatchDocument);
         Task Delete(int id);
-        Task<IEnumerable<Note>> GetAllNotes();
-        Task<IEnumerable<Note>> GetPublicNotes();
+        Task<IEnumerable<Note?>> GetAllNotes();
+        Task<IEnumerable<Note?>> GetPublicNotes();
         Task ChangeReadStatus(int id, int userId);
-        Task<Note> GetNoteAsync(int id);
+        Task<Note?> GetNoteAsync(int id);
     }
 
 
@@ -28,16 +28,16 @@ namespace StudentContest.Api.Services
             _noteRepository = noteRepository;
         }
 
-        public async Task<Note> Add(Note note)
+        public async Task<Note?> Add(Note? note)
         {
-            _noteValidator.ValidateNote(note);
+            await _noteValidator.ValidateNote(note);
             return await _noteRepository.AddNoteAsync(note);
         }
 
         public async Task Edit(int id, JsonPatchDocument<Note> notePatchDocument)
         {
             var existingNote = await GetNoteAsync(id);
-            notePatchDocument.ApplyToSafely(existingNote, _noteValidator);
+            await notePatchDocument.ApplyToSafely(existingNote, _noteValidator);
             await _noteRepository.SaveChangesAsync();
         }
 
@@ -47,12 +47,12 @@ namespace StudentContest.Api.Services
             await _noteRepository.DeleteNoteAsync(existingNote);
         }
 
-        public async Task<IEnumerable<Note>> GetAllNotes()
+        public async Task<IEnumerable<Note?>> GetAllNotes()
         {
             return await _noteRepository.GetAllNotesAsync();
         }
 
-        public async Task<IEnumerable<Note>> GetPublicNotes()
+        public async Task<IEnumerable<Note?>> GetPublicNotes()
         {
             return await _noteRepository.GetPublicNotesAsync();
         }
@@ -67,12 +67,9 @@ namespace StudentContest.Api.Services
             await _noteRepository.SaveChangesAsync();
         }
 
-        public async Task<Note> GetNoteAsync(int id)
+        public async Task<Note?> GetNoteAsync(int id)
         {
-            var existingNote = await _noteRepository.GetNoteAsync(id);
-            if (existingNote == null)
-                throw new KeyNotFoundException();
-            return existingNote;
+            return await _noteRepository.GetNoteAsync(id);
         }
     }
 }

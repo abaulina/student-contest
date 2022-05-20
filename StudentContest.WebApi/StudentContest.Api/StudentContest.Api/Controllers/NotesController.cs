@@ -20,7 +20,7 @@ namespace StudentContest.Api.Controllers
 
         [Authorize]
         [HttpGet("{id:int}")]
-        public async Task<Note> GetNoteById(int id)
+        public async Task<Note?> GetNoteById(int id)
         {
             return await _noteService.GetNoteAsync(id);
         }
@@ -40,7 +40,7 @@ namespace StudentContest.Api.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpPost]
-        public async Task<IActionResult> AddNote([FromBody] Note note)
+        public async Task<IActionResult> AddNote([FromBody] Note? note)
         {
             var createdNote = await _noteService.Add(note);
             return CreatedAtAction(nameof(GetNoteById), new {id = createdNote.Id}, createdNote);

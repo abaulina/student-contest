@@ -15,6 +15,7 @@ namespace StudentContest.Api.Tests.Helpers
         {
             db.Users.AddRange(Seed());
             db.RefreshTokens.AddRange(SeedRefreshTokens());
+            db.Notes.AddRange(SeedNotes());
             db.SaveChanges();
         }
 
@@ -30,6 +31,7 @@ namespace StudentContest.Api.Tests.Helpers
 
             db.Users.AddRange(users);
             db.RefreshTokens.AddRange(SeedRefreshTokens());
+            db.Notes.AddRange(SeedNotes());
 
             await db.SaveChangesAsync();
         }
@@ -77,6 +79,23 @@ namespace StudentContest.Api.Tests.Helpers
                 }
             };
             return refreshTokens;
+        }
+
+        private static IEnumerable<Note?> SeedNotes()
+        {
+            var notes = new List<Note?>
+            {
+                new()
+                {
+                    Text = "note", Status = NoteStatus.Hidden,
+                    UserNotes = new List<UserNote> {new() {NoteId = 1, UserId = 2, IsRead = false}}
+                },
+                new()
+                {
+                    Text = "another note", Status = NoteStatus.Public
+                }
+            };
+            return notes;
         }
     }
 }

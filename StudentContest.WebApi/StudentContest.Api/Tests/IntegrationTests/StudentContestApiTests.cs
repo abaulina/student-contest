@@ -52,22 +52,6 @@ namespace StudentContest.Api.Tests.IntegrationTests
             loginResponse.EnsureSuccessStatusCode();
         }
 
-        [Theory]
-        [InlineData("test@.com", "Test", "User", "12345678")]
-        [InlineData("test@example.com", ".Test", "User", "12345678")]
-        [InlineData("test@example.com", "Test", "Use.r.", "12345678")]
-        [InlineData("test@example.com", "Test", "User", "12")]
-        [InlineData("", "", "", "")]
-        public async Task RegisterUser_InvalidData_NotSuccess(string email, string firstName, string lastName, string password)
-        {
-            var registerRequest = new RegisterRequest
-                { Email = email, FirstName = firstName, LastName = lastName, Password = password };
-
-            var response = await _client.PostAsync("users/register", Utilities.GetStringContent(registerRequest));
-
-            Assert.False(response.IsSuccessStatusCode);
-        }
-
         [Fact]
         public async Task RegisterAdmin_IncorrectBodyType_ReturnsBadRequest()
         {
@@ -93,22 +77,6 @@ namespace StudentContest.Api.Tests.IntegrationTests
             loginResponse.EnsureSuccessStatusCode();
         }
 
-        [Theory]
-        [InlineData("test@.com", "Test", "User", "12345678")]
-        [InlineData("test@example.com", ".Test", "User", "12345678")]
-        [InlineData("test@example.com", "Test", "Use.r.", "12345678")]
-        [InlineData("test@example.com", "Test", "User", "12")]
-        [InlineData("", "", "", "")]
-        public async Task RegisterAdmin_InvalidData_NotSuccess(string email, string firstName, string lastName, string password)
-        {
-            var registerRequest = new RegisterRequest
-            { Email = email, FirstName = firstName, LastName = lastName, Password = password };
-
-            var response = await _client.PostAsync("users/register-admin", Utilities.GetStringContent(registerRequest));
-
-            Assert.False(response.IsSuccessStatusCode);
-        }
-
         [Fact]
         public async Task RegisterUser_IncorrectBodyType_ReturnsBadRequest()
         {
@@ -131,13 +99,11 @@ namespace StudentContest.Api.Tests.IntegrationTests
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        [Theory]
-        [InlineData("t@example.com", "12345678")]
-        [InlineData("test@example.com", "123456")]
-        public async Task Login_InvalidCredentials_ReturnsUnauthorized(string email, string password)
+        [Fact]
+        public async Task Login_InvalidCredentials_ReturnsUnauthorized()
         {
             var loginRequest = new LoginRequest
-                { Email = email, Password = password };
+                { Email = "t@example.com", Password = "12345678" };
             _client.DefaultRequestHeaders.Add("X-Forwarded-For", "ipAddress");
 
             var response = await _client.PostAsync("users/login", Utilities.GetStringContent(loginRequest));
